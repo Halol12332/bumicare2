@@ -38,9 +38,7 @@ class UserProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('User Profile'),
-      ),
+      appBar: AppBar(title: const Text('profile_screen.dart'),),
       body: FutureBuilder<Map<String, dynamic>>(
         future: getUserDetails(),
         builder: (context, snapshot) {

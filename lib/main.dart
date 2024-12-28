@@ -1,6 +1,6 @@
 //this is main.dart
 import 'package:bumicare2/firebase_options.dart';
-import 'package:flutter/foundation.dart';
+import 'package:bumicare2/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/profile_screen.dart';
@@ -31,14 +31,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'My App',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData.dark(),
       initialRoute: '/',
       routes: {
-        '/': (context) => MainScreen(),
-        '/login': (context) => LoginScreen(),
-        '/signup': (context) => SignUpScreen(),
+        '/': (context) => LoginScreen(),
+        '/signup': (context) => const AdditionalInfoScreen(),
+        '/main': (context) => MainScreen(),
         '/profile': (context) => UserProfileScreen(),
         '/rewards': (context) => RewardsScreen(),
+        '/settings': (context) => const SettingsScreen(),
       },
     );
   }

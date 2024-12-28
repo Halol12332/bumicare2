@@ -1,29 +1,23 @@
-//this is sign_up_screen.dart
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SignUpScreen extends StatefulWidget {
+class AdditionalInfoScreen extends StatefulWidget {
+  final Map<String, dynamic>? userData;
+
+  const AdditionalInfoScreen({Key? key, this.userData}) : super(key: key);
+
   @override
-  _SignUpScreenState createState() => _SignUpScreenState();
+  _AdditionalInfoScreenState createState() => _AdditionalInfoScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: "535728154791-7ffioh2jrfvu07k0jc2s3cqj56dnkkmh.apps.googleusercontent.com", // Replace with your Google client ID
-  );
-
+class _AdditionalInfoScreenState extends State<AdditionalInfoScreen> {
+  final _nicknameController = TextEditingController();
+  final _phoneNumberController = TextEditingController();
+  final _birthDateController = TextEditingController();
   File? _selectedImage;
 
   Future<void> _pickImage() async {
@@ -37,18 +31,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
   }
 
-  Future<void> _signUp(BuildContext context) async {
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
+  Future<void> _saveAdditionalInfo(BuildContext context) async {
+    final nickname = _nicknameController.text.trim();
+    final phoneNumber = _phoneNumberController.text.trim();
+    final birthDate = _birthDateController.text.trim();
 
-    if (username.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      _showSnackBar(context, 'All fields are required');
-      return;
-    }
-
-    if (password != confirmPassword) {
-      _showSnackBar(context, 'Passwords do not match');
+    if (nickname.isEmpty || phoneNumber.isEmpty || birthDate.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All fields are required')),
+      );
       return;
     }
 
@@ -56,100 +47,27 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final accountsJson = prefs.getString('accounts') ?? '[]';
     final List<dynamic> accounts = jsonDecode(accountsJson);
 
-    if (accounts.any((account) => account['username'] == username)) {
-      _showSnackBar(context, 'Username already exists');
-      return;
-    }
-
-    final hashedPassword = sha256.convert(utf8.encode(password)).toString();
     accounts.add({
-      'username': username,
-      'password': hashedPassword,
+      'email': widget.userData?['email'],
+      'fullName': widget.userData?['fullName'],
+      'nickname': nickname,
+      'phoneNumber': phoneNumber,
+      'birthDate': birthDate,
+      'profilePicture': _selectedImage?.path ?? widget.userData?['profilePicture'],
     });
 
     await prefs.setString('accounts', jsonEncode(accounts));
-    _showSnackBar(context, 'Account created successfully');
+    await prefs.setBool('isLoggedIn', true);
+    await prefs.setString('username', nickname);
 
-    await _askForNickname(context, username);
-    Navigator.pushReplacementNamed(context, '/login');
-  }
-
-  Future<void> _signInWithGoogle(BuildContext context) async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        return; // User canceled the sign-in
-      }
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final userCredential = await _auth.signInWithCredential(credential);
-      final User? user = userCredential.user;
-
-      if (user != null) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('username', user.email ?? '');
-
-        await _askForNickname(context, user.email ?? '');
-        Navigator.pushReplacementNamed(context, '/');
-      }
-    } catch (e) {
-      _showSnackBar(context, 'Google Sign-In failed: $e');
-    }
-  }
-
-  Future<void> _askForNickname(BuildContext context, String username) async {
-    final nicknameController = TextEditingController();
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('What should we call you?'),
-          content: TextField(
-            controller: nicknameController,
-            decoration: InputDecoration(hintText: 'Enter your nickname'),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                final nickname = nicknameController.text.trim();
-                if (nickname.isNotEmpty) {
-                  final prefs = await SharedPreferences.getInstance();
-                  final accountsJson = prefs.getString('accounts') ?? '[]';
-                  final List<dynamic> accounts = jsonDecode(accountsJson);
-
-                  final userIndex =
-                  accounts.indexWhere((account) => account['username'] == username);
-                  if (userIndex != -1) {
-                    accounts[userIndex]['nickname'] = nickname;
-                    await prefs.setString('accounts', jsonEncode(accounts));
-                  }
-                }
-                Navigator.of(context).pop();
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    Navigator.pushReplacementNamed(context, '/main');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign Up'),
+        title: const Text('Complete Your Profile sign_up_screen.dart'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -159,37 +77,37 @@ class _SignUpScreenState extends State<SignUpScreen> {
               onTap: _pickImage,
               child: CircleAvatar(
                 radius: 50,
-                backgroundImage: _selectedImage != null ? FileImage(_selectedImage!) : null,
-                child: _selectedImage == null ? Icon(Icons.camera_alt, size: 50) : null,
+                backgroundImage: _selectedImage != null
+                    ? FileImage(_selectedImage!)
+                    : (widget.userData?['profilePicture'] != null
+                    ? NetworkImage(widget.userData?['profilePicture'])
+                    : null) as ImageProvider?,
+                child: _selectedImage == null
+                    ? const Icon(Icons.camera_alt, size: 50)
+                    : null,
               ),
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              controller: _nicknameController,
+              decoration: const InputDecoration(labelText: 'Nickname'),
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
+              controller: _phoneNumberController,
+              decoration: const InputDecoration(labelText: 'Phone Number'),
+              keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _confirmPasswordController,
-              decoration: InputDecoration(labelText: 'Confirm Password'),
-              obscureText: true,
+              controller: _birthDateController,
+              decoration: const InputDecoration(labelText: 'Date of Birth'),
+              keyboardType: TextInputType.datetime,
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => _signUp(context),
-              child: Text('Sign Up'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: () => _signInWithGoogle(context),
-              icon: Icon(Icons.account_circle),
-              label: Text('Sign Up with Google'),
+              onPressed: () => _saveAdditionalInfo(context),
+              child: const Text('Save'),
             ),
           ],
         ),

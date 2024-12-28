@@ -1,22 +1,40 @@
-//this is login_screen.dart
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../services/auth_service.dart';
+import '../auth_service.dart';
 
 class LoginScreen extends StatelessWidget {
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final AuthService authService = AuthService();
 
   Future<void> loginWithGoogle(BuildContext context) async {
-    final authService = AuthService();
     final user = await authService.signInWithGoogle();
 
     if (user != null) {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('isLoggedIn', true);
-      await prefs.setString('username', user.displayName ?? '');
 
-      Navigator.pushReplacementNamed(context, '/');
+      // Check if user has logged in before
+      final accountsJson = prefs.getString('accounts') ?? '[]';
+      final List<dynamic> accounts = accountsJson.isNotEmpty
+          ? jsonDecode(accountsJson)
+          : <dynamic>[];
+      final existingAccount = accounts.firstWhere(
+              (account) => account['email'] == user.email,
+          orElse: () => null);
+
+      if (existingAccount == null) {
+        // New user, redirect to additional info screen
+        Navigator.pushNamed(context, '/signup', arguments: {
+          'email': user.email,
+          'fullName': user.displayName,
+          'profilePicture': user.photoURL,
+        });
+      } else {
+        // Existing user, proceed to home screen
+        await prefs.setBool('isLoggedIn', true);
+        await prefs.setString('username', existingAccount['nickname'] ?? '');
+
+        Navigator.pushReplacementNamed(context, '/');
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Google Sign-In failed')),
@@ -27,41 +45,56 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(title: const Text('login_screen.dart'),),
+      body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            TextField(
-              controller: usernameController,
-              decoration: const InputDecoration(labelText: 'Username'),
+            // Logo utama
+            Image.asset(
+              '../assets/logo/main_logo.png',
+              height: 300.0, // Ukuran logo utama
+              fit: BoxFit.contain,
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Password'),
-              obscureText: true,
+            const SizedBox(height: 16.0),
+            // Teks selamat datang
+            const Text(
+              'Welcome to BumiCare App',
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white60,
+              ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 32.0),
+            // Tombol Google Sign-In
             ElevatedButton(
-              onPressed: () => {}, // Add traditional login function here
-              child: const Text('Login'),
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/signup');
-              },
-              child: const Text("Don't have an account? Sign up"),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
               onPressed: () => loginWithGoogle(context),
-              icon: const Icon(Icons.login),
-              label: const Text('Sign in with Google'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+                backgroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      '../assets/logo/google.jpeg',
+                      height: 34.0, // Ukuran logo Google
+                      width: 34.0,  // Tambahkan lebar agar gambar tetap proporsional
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 8.0),
+                  const Text(
+                    'Continue with Google',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

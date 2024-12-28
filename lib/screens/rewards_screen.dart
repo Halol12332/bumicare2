@@ -5,9 +5,7 @@ class RewardsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Rewards'),
-      ),
+      appBar: AppBar(title: const Text('rewards_screen.dart'),),
       body: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 400), // Limit content width
