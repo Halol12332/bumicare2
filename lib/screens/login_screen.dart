@@ -1,25 +1,25 @@
+//this is login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatelessWidget {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  Future<void> login(BuildContext context) async {
-    final username = usernameController.text.trim();
-    final password = passwordController.text;
+  Future<void> loginWithGoogle(BuildContext context) async {
+    final authService = AuthService();
+    final user = await authService.signInWithGoogle();
 
-    final prefs = await SharedPreferences.getInstance();
-    final savedUsername = prefs.getString('username');
-    final savedPassword = prefs.getString('password');
-
-    if (username == savedUsername && password == savedPassword) {
+    if (user != null) {
+      final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('username', user.displayName ?? '');
 
-      Navigator.pushReplacementNamed(context, '/'); // Ganti '/home' sesuai route Anda
+      Navigator.pushReplacementNamed(context, '/');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid username or password')),
+        const SnackBar(content: Text('Google Sign-In failed')),
       );
     }
   }
@@ -28,7 +28,7 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Login'),
+        title: const Text('Login'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -37,25 +37,31 @@ class LoginScreen extends StatelessWidget {
           children: [
             TextField(
               controller: usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+              decoration: const InputDecoration(labelText: 'Username'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextField(
               controller: passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: const InputDecoration(labelText: 'Password'),
               obscureText: true,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => login(context),
-              child: Text('Login'),
+              onPressed: () => {}, // Add traditional login function here
+              child: const Text('Login'),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             TextButton(
               onPressed: () {
-                Navigator.pushNamed(context, '/signup'); // Navigasi ke Sign Up Screen
+                Navigator.pushNamed(context, '/signup');
               },
-              child: Text("Don't have an account? Sign up"),
+              child: const Text("Don't have an account? Sign up"),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => loginWithGoogle(context),
+              icon: const Icon(Icons.login),
+              label: const Text('Sign in with Google'),
             ),
           ],
         ),

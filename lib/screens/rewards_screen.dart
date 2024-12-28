@@ -1,3 +1,4 @@
+//note this is rewards_screen.dart
 import 'package:flutter/material.dart';
 
 class RewardsScreen extends StatelessWidget {

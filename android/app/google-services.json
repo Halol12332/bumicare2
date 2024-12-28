@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "535728154791",
+    "project_id": "bumicare-37308",
+    "storage_bucket": "bumicare-37308.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:535728154791:android:67535b2be54c379fdad382",
+        "android_client_info": {
+          "package_name": "com.example.bumicare2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "535728154791-7ffioh2jrfvu07k0jc2s3cqj56dnkkmh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDClRIyu8KshXVGc5bTIVI8bhmTgQnAmts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "535728154791-7ffioh2jrfvu07k0jc2s3cqj56dnkkmh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:535728154791:android:3a21c59262838fa9dad382",
+        "android_client_info": {
+          "package_name": "tarc.edu.my.bumicare"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "535728154791-7ffioh2jrfvu07k0jc2s3cqj56dnkkmh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDClRIyu8KshXVGc5bTIVI8bhmTgQnAmts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "535728154791-7ffioh2jrfvu07k0jc2s3cqj56dnkkmh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

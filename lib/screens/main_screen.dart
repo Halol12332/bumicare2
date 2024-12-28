@@ -1,3 +1,4 @@
+//note this is main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,16 +27,16 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Main Screen'),
+        title: const Text('Main Screen'),
         leading: Builder(
           builder: (context) => IconButton(
-            icon: Icon(Icons.menu),
+            icon: const Icon(Icons.menu),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.account_circle),
+            icon: const Icon(Icons.account_circle),
             onPressed: () {
               if (isUserLoggedIn) {
                 Navigator.pushNamed(context, '/profile'); // Pergi ke User Profile Screen
@@ -49,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
       drawer: Drawer(
         child: ListView(
           children: [
-            DrawerHeader(
+            const DrawerHeader(
               decoration: BoxDecoration(color: Colors.blue),
               child: Text(
                 'Navigation',
@@ -57,15 +58,15 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.home),
-              title: Text('Home'),
+              leading: const Icon(Icons.home),
+              title: const Text('Home'),
               onTap: () {
                 Navigator.pop(context); // Close the drawer
               },
             ),
             ListTile(
-              leading: Icon(Icons.star),
-              title: Text('Rewards'),
+              leading: const Icon(Icons.star),
+              title: const Text('Rewards'),
               onTap: () {
                 Navigator.pushNamed(context, '/rewards');
               },
@@ -84,8 +85,8 @@ class _MainScreenState extends State<MainScreen> {
                   color: Colors.blue[100],
                   borderRadius: BorderRadius.circular(16),
                 ),
-                padding: EdgeInsets.all(16),
-                child: Column(
+                padding: const EdgeInsets.all(16),
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -101,7 +102,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             SizedBox(
               height: 200, // Adjust height as needed
               child: Container(
@@ -109,8 +110,8 @@ class _MainScreenState extends State<MainScreen> {
                   color: Colors.green[100],
                   borderRadius: BorderRadius.circular(16),
                 ),
-                padding: EdgeInsets.all(16),
-                child: Column(
+                padding: const EdgeInsets.all(16),
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
