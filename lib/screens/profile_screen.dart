@@ -11,9 +11,10 @@ class UserProfileScreen extends StatelessWidget {
     final List<dynamic> accounts = jsonDecode(accountsJson);
 
     final user = accounts.firstWhere(
-          (account) => account['username'] == username,
+          (account) => account['nickname'] == username, // Ganti 'username' dengan 'nickname'
       orElse: () => null,
     );
+
 
     return user != null
         ? {

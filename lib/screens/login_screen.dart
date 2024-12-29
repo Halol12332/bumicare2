@@ -1,4 +1,6 @@
+//this is login_screen.dart
 import 'dart:convert';
+import 'package:bumicare2/screens/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../auth_service.dart';
@@ -7,37 +9,52 @@ class LoginScreen extends StatelessWidget {
   final AuthService authService = AuthService();
 
   Future<void> loginWithGoogle(BuildContext context) async {
-    final user = await authService.signInWithGoogle();
+    try {
+      // Attempt Google Sign-In
+      final user = await authService.signInWithGoogle();
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google Sign-In was canceled')),
+        );
+        return;
+      }
 
-    if (user != null) {
       final prefs = await SharedPreferences.getInstance();
 
-      // Check if user has logged in before
+      // Retrieve stored accounts
       final accountsJson = prefs.getString('accounts') ?? '[]';
-      final List<dynamic> accounts = accountsJson.isNotEmpty
-          ? jsonDecode(accountsJson)
-          : <dynamic>[];
+      final List<dynamic> accounts = jsonDecode(accountsJson);
+
+      // Check if the user already exists in the accounts
       final existingAccount = accounts.firstWhere(
-              (account) => account['email'] == user.email,
-          orElse: () => null);
+            (account) => account['email'] == user.email, // Cek berdasarkan email
+        orElse: () => null,
+      );
 
-      if (existingAccount == null) {
-        // New user, redirect to additional info screen
-        Navigator.pushNamed(context, '/signup', arguments: {
-          'email': user.email,
-          'fullName': user.displayName,
-          'profilePicture': user.photoURL,
-        });
-      } else {
-        // Existing user, proceed to home screen
+      if (existingAccount != null) {
+        // Existing user, redirect to the main screen
         await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('username', existingAccount['nickname'] ?? '');
-
-        Navigator.pushReplacementNamed(context, '/');
+        await prefs.setString('username', existingAccount['nickname']);
+        Navigator.pushReplacementNamed(context, '/main');
+      } else {
+        // New user, redirect to sign-up screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => InteractiveSignUpScreen(
+              userData: {
+                'email': user.email,
+                'fullName': user.displayName,
+                'profilePicture': user.photoURL,
+              },
+            ),
+          ),
+        );
       }
-    } else {
+    } catch (e) {
+      print("Login Error: $e");
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Google Sign-In failed')),
+        const SnackBar(content: Text('An error occurred during sign-in')),
       );
     }
   }
@@ -45,58 +62,74 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('login_screen.dart'),),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo utama
-            Image.asset(
-              '../assets/logo/main_logo.png',
-              height: 300.0, // Ukuran logo utama
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(height: 16.0),
-            // Teks selamat datang
-            const Text(
-              'Welcome to BumiCare App',
-              style: TextStyle(
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-                color: Colors.white60,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Main logo placeholder
+              const Placeholder(
+                fallbackHeight: 150.0,
+                fallbackWidth: 150.0,
               ),
-            ),
-            const SizedBox(height: 32.0),
-            // Tombol Google Sign-In
-            ElevatedButton(
-              onPressed: () => loginWithGoogle(context),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+              const SizedBox(height: 32.0),
+              const Text(
+                'Welcome to BumiCare App',
+                style: TextStyle(
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal,
                 ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ClipOval(
-                    child: Image.asset(
-                      '../assets/logo/google.jpeg',
-                      height: 34.0, // Ukuran logo Google
-                      width: 34.0,  // Tambahkan lebar agar gambar tetap proporsional
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  const SizedBox(width: 8.0),
-                  const Text(
-                    'Continue with Google',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ],
+              const SizedBox(height: 16.0),
+              const Text(
+                'A better way to care for the planet.',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.grey,
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 32.0),
+              // Google Sign-In button
+              ElevatedButton(
+                onPressed: () => loginWithGoogle(context),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 12.0, horizontal: 16.0),
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ClipOval(
+                      child: Image.asset(
+                        '../assets/logo/google.jpeg',
+                        height: 34.0,
+                        width: 34.0,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    const SizedBox(width: 8.0),
+                    const Text(
+                      'Continue with Google',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              // Footer text
+              const Text(
+                'By continuing, you agree to our Terms & Privacy Policy.',
+                style: TextStyle(fontSize: 12.0, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

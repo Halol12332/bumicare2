@@ -35,7 +35,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => LoginScreen(),
-        '/signup': (context) => const AdditionalInfoScreen(),
+        '/signup': (context) => InteractiveSignUpScreen(userData: {},),
         '/main': (context) => MainScreen(),
         '/profile': (context) => UserProfileScreen(),
         '/rewards': (context) => RewardsScreen(),
