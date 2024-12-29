@@ -1,22 +1,27 @@
-//leaderboards_screen.dart
-
 import 'package:flutter/material.dart';
 
 class LeaderboardsScreen extends StatelessWidget {
   const LeaderboardsScreen({super.key});
 
   final List<Map<String, dynamic>> _leaderboardData = const [
-    {"name": "Alice", "points": 1200, "profilePic": "assets/avatar1.png"},
-    {"name": "Bob", "points": 1150, "profilePic": "assets/avatar2.png"},
-    {"name": "Charlie", "points": 1100, "profilePic": "assets/avatar3.png"},
-    {"name": "David", "points": 1050, "profilePic": "assets/avatar4.png"},
-    {"name": "Eva", "points": 1000, "profilePic": "assets/avatar5.png"},
-    {"name": "Frank", "points": 950, "profilePic": "assets/avatar6.png"},
-    {"name": "Grace", "points": 900, "profilePic": "assets/avatar7.png"},
-    {"name": "Helen", "points": 850, "profilePic": "assets/avatar8.png"},
-    {"name": "Irene", "points": 800, "profilePic": "assets/avatar9.png"},
-    {"name": "Jack", "points": 750, "profilePic": "assets/avatar10.png"},
+    {"name": "Alice", "level": 120, "profilePic": "../assets/avatar_leaderboards/avatar1.png"},
+    {"name": "Bob", "level": 115, "profilePic": "../assets/avatar_leaderboards/avatar2.png"},
+    {"name": "Charlie", "level": 110, "profilePic": "../assets/avatar_leaderboards/avatar3.png"},
+    {"name": "David", "level": 105, "profilePic": "../assets/avatar_leaderboards/avatar4.png"},
+    {"name": "Eva", "level": 100, "profilePic": "../assets/avatar_leaderboards/avatar5.png"},
+    {"name": "Frank", "level": 95, "profilePic": "../assets/avatar_leaderboards/avatar6.png"},
+    {"name": "Grace", "level": 90, "profilePic": "../assets/avatar_leaderboards/avatar7.png"},
+    {"name": "Helen", "level": 85, "profilePic": "../assets/avatar_leaderboards/avatar8.png"},
+    {"name": "Irene", "level": 80, "profilePic": "../assets/avatar_leaderboards/avatar9.png"},
+    {"name": "Jack", "level": 75, "profilePic": "../assets/avatar_leaderboards/avatar10.png"},
   ];
+
+  final Map<String, dynamic> _currentUser = const {
+    "name": "You",
+    "level": 4,
+    "profilePic": "../assets/avatar_leaderboards/avatar_user.png",
+    "rank": 103,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -39,17 +44,19 @@ class LeaderboardsScreen extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final player = _leaderboardData[index];
                   return _buildLeaderboardTile(
-                      index + 1, player['profilePic'], player['name'], player['points']);
+                      index + 1, player['profilePic'], player['name'], player['level']);
                 },
               ),
             ),
+            const Divider(thickness: 2),
+            _buildCurrentUserTile(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildLeaderboardTile(int rank, String profilePic, String name, int points) {
+  Widget _buildLeaderboardTile(int rank, String profilePic, String name, int level) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10),
       elevation: 4,
@@ -63,11 +70,37 @@ class LeaderboardsScreen extends StatelessWidget {
           name,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
-        subtitle: Text("Points: $points"),
+        subtitle: Text("Level: $level"),
         trailing: CircleAvatar(
           backgroundColor: _getRankColor(rank),
           child: Text(
             "$rank",
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCurrentUserTile() {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage: AssetImage(_currentUser['profilePic']),
+          radius: 30,
+        ),
+        title: Text(
+          _currentUser['name'],
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text("Level: ${_currentUser['level']}"),
+        trailing: CircleAvatar(
+          backgroundColor: Colors.blueGrey,
+          child: Text(
+            "${_currentUser['rank']}",
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),

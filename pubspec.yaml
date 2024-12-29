@@ -90,6 +90,16 @@ assets:
   - assets/rewards_logo/shopee_logo.jpeg
   - assets/rewards_logo/starbucks_logo.png
   - assets/rewards_logo/tng_logo.png
+  - assets/avatar_leaderboards/avatar1.png
+  - assets/avatar_leaderboards/avatar2.png
+  - assets/avatar_leaderboards/avatar3.png
+  - assets/avatar_leaderboards/avatar4.png
+  - assets/avatar_leaderboards/avatar5.png
+  - assets/avatar_leaderboards/avatar6.png
+  - assets/avatar_leaderboards/avatar7.png
+  - assets/avatar_leaderboards/avatar8.png
+  - assets/avatar_leaderboards/avatar9.png
+  - assets/avatar_leaderboards/avatar10.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
