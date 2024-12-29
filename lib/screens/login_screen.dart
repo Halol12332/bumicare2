@@ -1,63 +1,9 @@
 //this is login_screen.dart
-import 'dart:convert';
-import 'package:bumicare2/screens/sign_up_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../auth_service.dart';
 
 class LoginScreen extends StatelessWidget {
   final AuthService authService = AuthService();
-
-  Future<void> loginWithGoogle(BuildContext context) async {
-    try {
-      // Attempt Google Sign-In
-      final user = await authService.signInWithGoogle();
-      if (user == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google Sign-In was canceled')),
-        );
-        return;
-      }
-
-      final prefs = await SharedPreferences.getInstance();
-
-      // Retrieve stored accounts
-      final accountsJson = prefs.getString('accounts') ?? '[]';
-      final List<dynamic> accounts = jsonDecode(accountsJson);
-
-      // Check if the user already exists in the accounts
-      final existingAccount = accounts.firstWhere(
-            (account) => account['email'] == user.email, // Cek berdasarkan email
-        orElse: () => null,
-      );
-
-      if (existingAccount != null) {
-        // Existing user, redirect to the main screen
-        await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('username', existingAccount['nickname']);
-        Navigator.pushReplacementNamed(context, '/main');
-      } else {
-        // New user, redirect to sign-up screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => InteractiveSignUpScreen(
-              userData: {
-                'email': user.email,
-                'fullName': user.displayName,
-                'profilePicture': user.photoURL,
-              },
-            ),
-          ),
-        );
-      }
-    } catch (e) {
-      print("Login Error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred during sign-in')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

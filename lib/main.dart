@@ -1,5 +1,6 @@
 //this is main.dart
 import 'package:bumicare2/firebase_options.dart';
+import 'package:bumicare2/screens/eco_track_screen.dart';
 import 'package:bumicare2/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => UserProfileScreen(),
         '/rewards': (context) => RewardsScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/ecotrack': (context) => EcoTrackScreen(),
       },
     );
   }

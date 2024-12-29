@@ -1,3 +1,4 @@
+//constant_rewards.dart
 final Map<String, String> rewardLogos = {
   'TNG eWallet Voucher RM1': '../assets/rewards_logo/tng_logo.png',
   'GrabFood Discount RM5': '../assets/rewards_logo/grabfood_logo.png',

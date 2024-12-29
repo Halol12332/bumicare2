@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import '../auth_service.dart';
 import 'inventory_screen.dart';
 
 class UserProfileScreen extends StatelessWidget {
@@ -37,18 +38,6 @@ class UserProfileScreen extends StatelessWidget {
       'currentXP': 0,
       'totalXP': 100,
     };
-  }
-
-  Future<void> logout(BuildContext context) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('isLoggedIn');
-    await prefs.remove('username');
-
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/',
-          (route) => false,
-    );
   }
 
   @override
