@@ -33,27 +33,54 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
     final accountsJson = prefs.getString('accounts') ?? '[]';
     final List<dynamic> accounts = jsonDecode(accountsJson);
     final username = prefs.getString('username') ?? '';
+    int previousLevel = 0;
+    int newLevel = 0;
 
     for (var account in accounts) {
       if (account['nickname'] == username) {
         int currentXP = account['currentXP'] ?? 0;
-        int level = account['level'] ?? 1;
-
+        previousLevel = account['level'] ?? 1; // Track the old level
         currentXP += exp;
 
+        // Update level and XP
+        newLevel = previousLevel;
         while (currentXP >= 100) {
           currentXP -= 100;
-          level++;
+          newLevel++;
         }
 
         account['currentXP'] = currentXP;
-        account['level'] = level;
+        account['level'] = newLevel;
         break;
       }
     }
 
     await prefs.setString('accounts', jsonEncode(accounts));
+
+    // Check if the level has changed
+    if (newLevel > previousLevel) {
+      _showLevelUpDialog(newLevel);
+    }
   }
+
+  void _showLevelUpDialog(int level) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Congratulations!"),
+          content: Text("You leveled up to level $level!"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -109,12 +136,13 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () async {
-              await _updateUserExp(totalExp);
+              final int earnedExp = totalExp; // Store the correct XP amount
+              await _updateUserExp(earnedExp);
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text("Submission Complete"),
-                  content: Text("You earned a total of $totalExp XP!"),
+                  content: Text("You earned a total of $earnedExp XP!"), // Use the stored XP
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
@@ -140,6 +168,7 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
               style: TextStyle(fontSize: 16, color: Colors.white),
             ),
           ),
+
           const SizedBox(height: 20),
         ],
       ),

@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../constant_rewards.dart';
 
 class RewardsScreen extends StatefulWidget {
@@ -32,24 +31,26 @@ class _RewardsScreenState extends State<RewardsScreen> {
     }
   }
 
-
   Future<void> _getUserLevel() async {
     final prefs = await SharedPreferences.getInstance();
+    final accountsJson = prefs.getString('accounts') ?? '[]';
+    final List<dynamic> accounts = jsonDecode(accountsJson);
     final username = prefs.getString('username') ?? '';
 
-    // Ambil data klaim rewards spesifik untuk username
+    // Find the account for the logged-in user
+    final userAccount = accounts.firstWhere(
+          (account) => account['nickname'] == username,
+      orElse: () => null,
+    );
+
+    // Retrieve user level and claimed rewards
     final claimedRewardsJson = prefs.getString('claimedRewards_$username') ?? '[]';
 
     setState(() {
-      userLevel = username.isNotEmpty ? 1 : 0; // Default level berdasarkan kondisi
-      _claimedRewards = jsonDecode(claimedRewardsJson)
-          .map<int>((e) => e as int)
-          .toList();
+      userLevel = userAccount?['level'] ?? 1; // Update userLevel from stored data
+      _claimedRewards = jsonDecode(claimedRewardsJson).map<int>((e) => e as int).toList();
     });
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {

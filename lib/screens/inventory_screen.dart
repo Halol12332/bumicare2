@@ -31,8 +31,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
