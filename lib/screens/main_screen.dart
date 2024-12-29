@@ -1,6 +1,11 @@
 //main_screen.dart
 import 'package:bumicare2/profile_icon.dart';
+import 'package:bumicare2/screens/rewards_screen.dart';
 import 'package:flutter/material.dart';
+import 'challenges_screen.dart';
+import 'community_screen.dart';
+import 'eco_track_screen.dart';
+import 'leaderboards_screen.dart';
 import 'settings_screen.dart';
 
 class MainScreen extends StatelessWidget {
@@ -52,10 +57,11 @@ class MainScreen extends StatelessWidget {
         children: [
           const Center(child: Text("Welcome to BumiCare!")),
           const SizedBox(height: 40),
-          _buildButton(context, "Challenges", Colors.blue, SettingsScreen()),
-          _buildButton(context, "Leaderboards", Colors.orange, SettingsScreen()),
-          _buildButton(context, "EcoTrack", Colors.green, SettingsScreen()),
-          _buildButton(context, "Community", Colors.red, SettingsScreen()),
+          _buildButton(context, "Challenges", Colors.blue, ChallengesScreen()),
+          _buildButton(context, "Leaderboards", Colors.orange, LeaderboardsScreen()),
+          _buildButton(context, "EcoTrack", Colors.green, EcoTrackScreen()),
+          _buildButton(context, "Community", Colors.red, CommunityScreen()),
+          _buildButton(context, "Rewards", Colors.purple, RewardsScreen()),
         ],
       ),
     );

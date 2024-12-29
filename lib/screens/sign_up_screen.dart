@@ -1,4 +1,3 @@
-//this is sign_up_screen.dart
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -11,9 +10,9 @@ class InteractiveSignUpScreen extends StatefulWidget {
   InteractiveSignUpScreen({required this.userData});
 
   @override
-  _InteractiveSignUpScreenState createState() => _InteractiveSignUpScreenState();
+  _InteractiveSignUpScreenState createState() =>
+      _InteractiveSignUpScreenState();
 }
-
 
 class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
     with SingleTickerProviderStateMixin {
@@ -33,11 +32,8 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
 
     if (widget.userData.isNotEmpty) {
       _nicknameController.text = widget.userData['fullName'] ?? '';
-      // You can use other fields like email or profilePicture if needed
     }
   }
-
-
 
   @override
   void dispose() {
@@ -62,7 +58,8 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
   void _onSignUpPressed() async {
     if (_nicknameController.text.isEmpty ||
         _phoneNumberController.text.isEmpty ||
-        _birthDateController.text.isEmpty) {
+        _birthDateController.text.isEmpty ||
+        _selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please complete all fields!')),
       );
@@ -90,6 +87,7 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
           'phoneNumber': _phoneNumberController.text,
           'birthDate': _birthDateController.text,
           'email': widget.userData['email'], // Save email for verification
+          'profileImage': _selectedImage!.path, // Save the image path
         };
 
         accounts.add(newAccount);
@@ -108,8 +106,6 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
       }
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -132,7 +128,8 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
                     ? FileImage(_selectedImage!)
                     : null,
                 child: _selectedImage == null
-                    ? Icon(Icons.add_a_photo, size: 50, color: Colors.teal.shade400)
+                    ? Icon(Icons.add_a_photo,
+                    size: 50, color: Colors.teal.shade400)
                     : null,
               ),
             ),
@@ -146,7 +143,7 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
               controller: _nicknameController,
               decoration: InputDecoration(
                 labelText: 'Nickname',
-                prefixIcon: Icon(Icons.person, color: Colors.teal),
+                prefixIcon: const Icon(Icons.person, color: Colors.teal),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
@@ -158,56 +155,57 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                 labelText: 'Phone Number',
-                prefixIcon: Icon(Icons.phone, color: Colors.teal),
+                prefixIcon: const Icon(Icons.phone, color: Colors.teal),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
               ),
             ),
             const SizedBox(height: 16),
-          TextField(
-            controller: _birthDateController,
-            readOnly: true, // Make the TextField non-editable
-            onTap: () async {
-              DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(), // Default to today's date
-                firstDate: DateTime(1900), // Earliest selectable date
-                lastDate: DateTime.now(), // Latest selectable date (today)
-                builder: (context, child) {
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      colorScheme: ColorScheme.light(
-                        primary: Colors.teal, // Header background color
-                        onPrimary: Colors.white, // Header text color
-                        onSurface: Colors.black, // Body text color
-                      ),
-                      textButtonTheme: TextButtonThemeData(
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.teal, // Button text color
+            TextField(
+              controller: _birthDateController,
+              readOnly: true, // Make the TextField non-editable
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: const ColorScheme.light(
+                          primary: Colors.teal, // Header background color
+                          onPrimary: Colors.white, // Header text color
+                          onSurface: Colors.black, // Body text color
+                        ),
+                        textButtonTheme: TextButtonThemeData(
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.teal, // Button text color
+                          ),
                         ),
                       ),
-                    ),
-                    child: child!,
-                  );
-                },
-              );
+                      child: child!,
+                    );
+                  },
+                );
 
-              if (pickedDate != null) {
-                // Format the picked date to a readable string
-                String formattedDate = "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
-                _birthDateController.text = formattedDate;
-              }
-            },
-            decoration: InputDecoration(
-              labelText: 'Date of Birth',
-              prefixIcon: const Icon(Icons.calendar_today, color: Colors.teal),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12.0),
+                if (pickedDate != null) {
+                  String formattedDate =
+                      "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                  _birthDateController.text = formattedDate;
+                }
+              },
+              decoration: InputDecoration(
+                labelText: 'Date of Birth',
+                prefixIcon:
+                const Icon(Icons.calendar_today, color: Colors.teal),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
+            const SizedBox(height: 24),
             ScaleTransition(
               scale: Tween(begin: 1.0, end: 1.1).animate(
                 CurvedAnimation(
@@ -239,4 +237,3 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
     );
   }
 }
-

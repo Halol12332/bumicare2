@@ -4,7 +4,7 @@ import 'screens/settings_screen.dart';
 import 'screens/profile_screen.dart'; // Import the profile screen
 import 'screens/login_screen.dart'; // Import the login screen
 
-enum Menu { itemOne, itemTwo, itemThree }
+enum Menu { itemOne, itemTwo}
 
 class ProfileIcon extends StatelessWidget {
   @override
@@ -20,12 +20,6 @@ class ProfileIcon extends StatelessWidget {
             MaterialPageRoute(builder: (context) => UserProfileScreen()),
           );
         } else if (item == Menu.itemTwo) {
-          // Navigate to SettingsScreen
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => SettingsScreen()),
-          );
-        } else if (item == Menu.itemThree) {
           // Navigate to LoginScreen (for sign out)
           Navigator.pushAndRemoveUntil(
             context,
@@ -41,10 +35,6 @@ class ProfileIcon extends StatelessWidget {
         ),
         const PopupMenuItem<Menu>(
           value: Menu.itemTwo,
-          child: Text('Settings'),
-        ),
-        const PopupMenuItem<Menu>(
-          value: Menu.itemThree,
           child: Text('Sign Out'),
         ),
       ],

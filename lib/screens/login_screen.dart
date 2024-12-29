@@ -68,10 +68,12 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Main logo placeholder
-              const Placeholder(
-                fallbackHeight: 150.0,
-                fallbackWidth: 150.0,
+              // Main logo placeholder replaced with an image
+              Image.asset(
+                '../assets/logo/main_logo.png',
+                height: 180.0,
+                width: 180.0,
+                fit: BoxFit.contain, // Ensures the logo fits within the dimensions
               ),
               const SizedBox(height: 32.0),
               const Text(
