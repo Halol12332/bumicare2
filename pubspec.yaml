@@ -85,6 +85,11 @@ assets:
   - assets/privacy_icon.jpg
   - assets/refer_icon.jpg
   - assets/social_icon.jpg
+  - assets/rewards_logo/grabfood_logo.png
+  - assets/rewards_logo/lazada.logo.png
+  - assets/rewards_logo/shopee_logo.jpeg
+  - assets/rewards_logo/starbucks_logo.png
+  - assets/rewards_logo/tng_logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

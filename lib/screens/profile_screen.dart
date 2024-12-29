@@ -1,6 +1,9 @@
+//profile_screen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+
+import 'inventory_screen.dart';
 
 class UserProfileScreen extends StatelessWidget {
   Future<Map<String, dynamic>> getUserDetails() async {
@@ -207,6 +210,32 @@ class UserProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => InventoryScreen()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(200),
+                      ),
+                    ),
+                    child: const Text(
+                      'View Inventory',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+
               ],
             ),
           );
