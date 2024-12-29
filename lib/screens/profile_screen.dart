@@ -1,44 +1,57 @@
-//profile_screen.dart
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
 import '../auth_service.dart';
 import 'inventory_screen.dart';
 
 class UserProfileScreen extends StatelessWidget {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  // Fetch user details from Firestore
   Future<Map<String, dynamic>> getUserDetails() async {
     final prefs = await SharedPreferences.getInstance();
     final username = prefs.getString('username') ?? '';
-    final accountsJson = prefs.getString('accounts') ?? '[]';
-    final List<dynamic> accounts = jsonDecode(accountsJson);
 
-    final user = accounts.firstWhere(
-          (account) => account['nickname'] == username,
-      orElse: () => null,
-    );
-
-    return user != null
-        ? {
-      'nickname': user['nickname'] ?? 'No Nickname',
-      'level': user['level'] ?? 1,
-      'email': user['email'] ?? 'No Email',
-      'phoneNumber': user['phoneNumber'] ?? 'No Phone Number',
-      'birthDate': user['birthDate'] ?? 'No Birth Date',
-      'profileImage': user['profileImage'] ?? '',
-      'currentXP': user['currentXP'] ?? 0,
-      'totalXP': user['totalXP'] ?? 100,
+    if (username.isEmpty) {
+      await Future.delayed(const Duration(seconds: 1)); // Add delay to allow data to sync
+      return getUserDetails(); // Retry fetching data
     }
-        : {
-      'nickname': 'Unknown',
-      'level': 1,
-      'email': 'No Email',
-      'phoneNumber': 'No Phone Number',
-      'birthDate': 'No Birth Date',
-      'profileImage': '',
-      'currentXP': 0,
-      'totalXP': 100,
-    };
+
+    try {
+      final userDoc = await _firestore.collection('users').doc(username).get();
+
+      if (userDoc.exists) {
+        final userData = userDoc.data()!;
+        return {
+          'nickname': userData['nickname'] ?? 'No Nickname',
+          'level': userData['level'] ?? 1,
+          'email': userData['email'] ?? 'No Email',
+          'phoneNumber': userData['phoneNumber'] ?? 'No Phone Number',
+          'birthDate': userData['birthDate'] ?? 'No Birth Date',
+          'avatar': userData['avatar'] ?? '',
+          'currentXP': userData['currentXP'] ?? 0,
+          'totalXP': userData['totalXP'] ?? 100,
+          'CO2saved': userData['CO2saved'] ?? 0,
+        };
+      } else {
+        return Future.delayed(const Duration(seconds: 1), getUserDetails);
+      }
+    } catch (e) {
+      print("Error fetching user data from Firestore: $e");
+      return {
+        'nickname': 'Error',
+        'level': 1,
+        'email': 'No Email',
+        'phoneNumber': 'No Phone Number',
+        'birthDate': 'No Birth Date',
+        'avatar': '',
+        'currentXP': 0,
+        'totalXP': 100,
+        'CO2saved': 0,
+      };
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -84,10 +97,11 @@ class UserProfileScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 50,
                           backgroundColor: Colors.white,
-                          backgroundImage: profileImage.isNotEmpty
-                              ? NetworkImage(profileImage)
+                          backgroundImage: userDetails['avatar'].isNotEmpty
+                              ? AssetImage(userDetails['avatar'])
                               : const AssetImage('assets/default_profile.png') as ImageProvider,
                         ),
+
                         const SizedBox(height: 16),
                         Text(
                           userDetails['nickname'],

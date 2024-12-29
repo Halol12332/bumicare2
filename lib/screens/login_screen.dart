@@ -1,9 +1,56 @@
-//this is login_screen.dart
+import 'package:bumicare2/screens/sign_up_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../auth_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final AuthService authService = AuthService();
+
+  Future<void> _handleLogin(BuildContext context) async {
+    // Call your login method (e.g., loginWithGoogle)
+    final user = await authService.loginWithGoogle(context);
+
+    if (user != null) {
+      // Save username (email) in SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setString('username', user.email!);  // Save the email (or username)
+
+      // Check if user exists in Firestore
+      final email = user.email;
+      final docRef = FirebaseFirestore.instance.collection('users').doc(email);
+      final snapshot = await docRef.get();
+
+      if (snapshot.exists) {
+        // User exists, navigate to main screen
+        Navigator.pushReplacementNamed(context, '/main'); // Replace with your main screen route name
+      } else {
+        // User doesn't exist, navigate to sign-up screen and pass user data
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => InteractiveSignUpScreen(
+              userData: {
+                'email': user.email,
+                'fullName': user.displayName ?? 'New User',
+              },
+            ),
+          ),
+        );
+      }
+    } else {
+      // Handle login failure (e.g., show an error message)
+      print('Login failed.');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +88,7 @@ class LoginScreen extends StatelessWidget {
               const SizedBox(height: 32.0),
               // Google Sign-In button
               ElevatedButton(
-                onPressed: () => loginWithGoogle(context),
+                onPressed: () => _handleLogin(context),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
                       vertical: 12.0, horizontal: 16.0),

@@ -1,30 +1,34 @@
+//this is leaderboards_screen.dart
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 class LeaderboardsScreen extends StatelessWidget {
   const LeaderboardsScreen({super.key});
 
-  final List<Map<String, dynamic>> _leaderboardData = const [
-    {"name": "Alice", "level": 120, "profilePic": "../assets/avatar_leaderboards/avatar1.png"},
-    {"name": "Bob", "level": 115, "profilePic": "../assets/avatar_leaderboards/avatar2.png"},
-    {"name": "Charlie", "level": 110, "profilePic": "../assets/avatar_leaderboards/avatar3.png"},
-    {"name": "David", "level": 105, "profilePic": "../assets/avatar_leaderboards/avatar4.png"},
-    {"name": "Eva", "level": 100, "profilePic": "../assets/avatar_leaderboards/avatar5.png"},
-    {"name": "Frank", "level": 95, "profilePic": "../assets/avatar_leaderboards/avatar6.png"},
-    {"name": "Grace", "level": 90, "profilePic": "../assets/avatar_leaderboards/avatar7.png"},
-    {"name": "Helen", "level": 85, "profilePic": "../assets/avatar_leaderboards/avatar8.png"},
-    {"name": "Irene", "level": 80, "profilePic": "../assets/avatar_leaderboards/avatar9.png"},
-    {"name": "Jack", "level": 75, "profilePic": "../assets/avatar_leaderboards/avatar10.png"},
-  ];
-
-  final Map<String, dynamic> _currentUser = const {
-    "name": "You",
-    "level": 4,
-    "profilePic": "../assets/avatar_leaderboards/avatar_user.png",
-    "rank": 103,
-  };
-
   @override
   Widget build(BuildContext context) {
+    // Simulasi data pemain
+    final random = Random();
+    final allPlayers = List.generate(
+      200,
+          (index) => Player(
+        'Player ${index + 1}',
+        random.nextInt(120) + 1, // Level antara 1 hingga 120
+        '../assets/avatar.png',
+      ),
+    );
+
+    // Tambahkan data pengguna
+    final currentUser = Player('You', 4, '../assets/avatar_user.png');
+    allPlayers.add(currentUser);
+
+    // Hitung peringkat pengguna
+    final calculator = UserRankCalculator(allPlayers, currentUser);
+    final userRank = calculator.calculateRank();
+
+    // Top 10 pemain
+    final topPlayers = allPlayers.sublist(0, 10);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Leaderboard"),
@@ -40,16 +44,16 @@ class LeaderboardsScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Expanded(
               child: ListView.builder(
-                itemCount: _leaderboardData.length,
+                itemCount: topPlayers.length,
                 itemBuilder: (context, index) {
-                  final player = _leaderboardData[index];
+                  final player = topPlayers[index];
                   return _buildLeaderboardTile(
-                      index + 1, player['profilePic'], player['name'], player['level']);
+                      index + 1, player.profilePic, player.name, player.level);
                 },
               ),
             ),
             const Divider(thickness: 2),
-            _buildCurrentUserTile(),
+            _buildCurrentUserTile(userRank, currentUser),
           ],
         ),
       ),
@@ -82,25 +86,25 @@ class LeaderboardsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCurrentUserTile() {
+  Widget _buildCurrentUserTile(int rank, Player currentUser) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10),
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundImage: AssetImage(_currentUser['profilePic']),
+          backgroundImage: AssetImage(currentUser.profilePic),
           radius: 30,
         ),
         title: Text(
-          _currentUser['name'],
+          currentUser.name,
           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
-        subtitle: Text("Level: ${_currentUser['level']}"),
+        subtitle: Text("Level: ${currentUser.level}"),
         trailing: CircleAvatar(
           backgroundColor: Colors.blueGrey,
           child: Text(
-            "${_currentUser['rank']}",
+            "$rank",
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
@@ -119,5 +123,35 @@ class LeaderboardsScreen extends StatelessWidget {
       default:
         return Colors.blueGrey;
     }
+  }
+}
+
+class Player {
+  final String name;
+  final int level;
+  final String profilePic;
+
+  Player(this.name, this.level, this.profilePic);
+}
+
+class UserRankCalculator {
+  final List<Player> allPlayers;
+  final Player currentUser;
+
+  UserRankCalculator(this.allPlayers, this.currentUser);
+
+  int calculateRank() {
+    // Urutkan pemain berdasarkan level (descending)
+    allPlayers.sort((a, b) => b.level.compareTo(a.level));
+
+    // Cari indeks pengguna saat ini
+    for (int i = 0; i < allPlayers.length; i++) {
+      if (allPlayers[i].name == currentUser.name) {
+        return i + 1; // Peringkat dimulai dari 1
+      }
+    }
+
+    // Jika pengguna tidak ditemukan
+    return -1;
   }
 }

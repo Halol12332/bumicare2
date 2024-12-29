@@ -1,7 +1,7 @@
+// this is main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:bumicare2/profile_icon.dart';
 import 'package:bumicare2/screens/rewards_screen.dart';
-import 'challenges_screen.dart';
 import 'community_screen.dart';
 import 'eco_track_screen.dart';
 import 'leaderboards_screen.dart';
@@ -164,9 +164,8 @@ class MainScreen extends StatelessWidget {
   Widget _actionButtons(BuildContext context) {
     return Column(
       children: [
-        _buildButton(context, "Challenges", Colors.green[700]!, const ChallengesScreen()),
+        _buildButton(context, "Eco-Challenges", Colors.black, EcoTrackScreen()),
         _buildButton(context, "Leaderboards", Colors.green[900]!, const LeaderboardsScreen()),
-        _buildButton(context, "EcoTrack", Colors.black, EcoTrackScreen()),
         _buildButton(context, "Rewards", Colors.green, RewardsScreen()),
       ],
     );
@@ -231,6 +230,7 @@ class MainScreen extends StatelessWidget {
   );
 }
 
+//drawer
 final List<String> _menuItems = <String>[
   'Tentang',
   'Kontak',

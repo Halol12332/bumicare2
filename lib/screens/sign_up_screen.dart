@@ -1,7 +1,5 @@
-import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class InteractiveSignUpScreen extends StatefulWidget {
@@ -19,8 +17,18 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
   final TextEditingController _nicknameController = TextEditingController();
   final TextEditingController _phoneNumberController = TextEditingController();
   final TextEditingController _birthDateController = TextEditingController();
-  File? _selectedImage;
   late AnimationController _animationController;
+
+  final List<String> _avatars = [
+    '../assets/avatar_leaderboards/avatar1.png',
+    '../assets/avatar_leaderboards/avatar2.png',
+    '../assets/avatar_leaderboards/avatar3.png',
+    '../assets/avatar_leaderboards/avatar4.png',
+    '../assets/avatar_leaderboards/avatar5.png',
+    '../assets/avatar_leaderboards/avatar6.png',
+    '../assets/avatar_leaderboards/avatar7.png',
+  ];
+  int _currentAvatarIndex = 0;
 
   @override
   void initState() {
@@ -44,68 +52,50 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = File(pickedFile.path);
-      });
-    }
-  }
-
   void _onSignUpPressed() async {
     if (_nicknameController.text.isEmpty ||
         _phoneNumberController.text.isEmpty ||
-        _birthDateController.text.isEmpty ||
-        _selectedImage == null) {
+        _birthDateController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please complete all fields!')),
       );
-    } else {
-      final prefs = await SharedPreferences.getInstance();
+      return;
+    }
 
-      // Retrieve stored accounts
-      final accountsJson = prefs.getString('accounts') ?? '[]';
-      final List<dynamic> accounts = jsonDecode(accountsJson);
+    final prefs = await SharedPreferences.getInstance();
 
-      // Check if the account already exists
-      final existingAccount = accounts.firstWhere(
-            (account) => account['email'] == widget.userData['email'],
-        orElse: () => null,
+    try {
+      final userRef = FirebaseFirestore.instance.collection('users').doc(widget.userData['email']);
+
+      final userData = {
+        'nickname': _nicknameController.text,
+        'phoneNumber': _phoneNumberController.text,
+        'birthDate': _birthDateController.text,
+        'email': widget.userData['email'],
+        'avatar': _avatars[_currentAvatarIndex],
+        'level': 1,
+        'CO2saved': 0,
+        'exp': 0,
+        'achievements': [],
+      };
+
+      await userRef.set(userData);
+      await prefs.setString('username', widget.userData['email']);
+      await prefs.setBool('isLoggedIn', true);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Welcome, ${_nicknameController.text}!')),
       );
 
-      if (existingAccount != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account already exists!')),
-        );
-      } else {
-        // Add new account details
-        final newAccount = {
-          'nickname': _nicknameController.text,
-          'phoneNumber': _phoneNumberController.text,
-          'birthDate': _birthDateController.text,
-          'email': widget.userData['email'], // Save email for verification
-          'profileImage': _selectedImage!.path, // Save the image path
-        };
-
-        accounts.add(newAccount);
-
-        // Save updated accounts to SharedPreferences
-        await prefs.setString('accounts', jsonEncode(accounts));
-        await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('username', _nicknameController.text);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Welcome, ${_nicknameController.text}!')),
-        );
-
-        // Navigate to the main screen
-        Navigator.pushReplacementNamed(context, '/main');
-      }
+      Navigator.pushReplacementNamed(context, '/main');
+    } catch (e) {
+      print("Error saving user data: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error saving user data')),
+      );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -120,22 +110,34 @@ class _InteractiveSignUpScreenState extends State<InteractiveSignUpScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: _pickImage,
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage: _selectedImage != null
-                    ? FileImage(_selectedImage!)
-                    : null,
-                child: _selectedImage == null
-                    ? Icon(Icons.add_a_photo,
-                    size: 50, color: Colors.teal.shade400)
-                    : null,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_left, size: 40, color: Colors.teal),
+                  onPressed: () {
+                    setState(() {
+                      _currentAvatarIndex = (_currentAvatarIndex - 1 + _avatars.length) % _avatars.length;
+                    });
+                  },
+                ),
+                CircleAvatar(
+                  radius: 60,
+                  backgroundImage: AssetImage(_avatars[_currentAvatarIndex]),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_right, size: 40, color: Colors.teal),
+                  onPressed: () {
+                    setState(() {
+                      _currentAvatarIndex = (_currentAvatarIndex + 1) % _avatars.length;
+                    });
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             const Text(
-              "Upload a profile picture",
+              "Choose your avatar",
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 16),
