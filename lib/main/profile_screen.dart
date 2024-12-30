@@ -83,7 +83,7 @@ class UserProfileScreen extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      height: 330,
+                      height: 400,
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           colors: [Colors.lightGreen, Colors.green],
@@ -168,7 +168,7 @@ class UserProfileScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 8),
                               // Icon untuk representasi CO2 yang diselamatkan
-                              Icon(
+                              const Icon(
                                 Icons.eco,
                                 size: 40,
                                 color: Colors.white,

@@ -107,7 +107,7 @@ class _ChangeAccountInfoScreenState extends State<ChangeAccountInfoScreen> {
 
     return GridView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 5,
         crossAxisSpacing: 8,

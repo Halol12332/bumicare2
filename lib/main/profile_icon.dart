@@ -1,7 +1,7 @@
 //profile_icon.dart
 import 'package:flutter/material.dart';
-import 'screens/profile_screen.dart'; // Import the profile screen
-import 'screens/login_screen.dart'; // Import the login screen
+import 'profile_screen.dart'; // Import the profile screen
+import '../accounts_handling/login_screen.dart'; // Import the login screen
 
 enum Menu { itemOne, itemTwo}
 

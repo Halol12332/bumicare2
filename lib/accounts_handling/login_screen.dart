@@ -1,7 +1,7 @@
-import 'package:bumicare2/screens/sign_up_screen.dart';
+import 'package:bumicare2/accounts_handling/sign_up_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../auth_service.dart';
+import 'auth_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'account_setting.dart';
+import '../accounts_handling/account_setting.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});

@@ -1,13 +1,13 @@
 //this is main.dart
 import 'package:bumicare2/firebase_options.dart';
-import 'package:bumicare2/screens/eco_track_screen.dart';
-import 'package:bumicare2/screens/settings_screen.dart';
+import 'package:bumicare2/eco_challenges/eco_challenges.dart';
+import 'package:bumicare2/main/settings_screen.dart';
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart';
-import 'screens/profile_screen.dart';
-import 'screens/rewards_screen.dart';
-import 'screens/sign_up_screen.dart';
-import 'screens/main_screen.dart';
+import 'accounts_handling/login_screen.dart';
+import 'accounts_handling/sign_up_screen.dart';
+import 'main/main_screen.dart';
+import 'main/profile_screen.dart';
+import 'rewards/rewards_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
