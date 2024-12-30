@@ -1,7 +1,9 @@
-// this is main_screen.dart
 import 'package:flutter/material.dart';
 import 'package:bumicare2/profile_icon.dart';
 import 'package:bumicare2/screens/rewards_screen.dart';
+import 'about_screen.dart';
+import 'contact_screen.dart';
+import 'settings_screen.dart';
 import 'community_screen.dart';
 import 'eco_track_screen.dart';
 import 'leaderboards_screen.dart';
@@ -38,7 +40,7 @@ class MainScreen extends StatelessWidget {
                 style: TextStyle(
                     color: Colors.white, fontWeight: FontWeight.bold),
               ),
-              if (isLargeScreen) Expanded(child: _navBarItems())
+              if (isLargeScreen) Expanded(child: _navBarItems(context))
             ],
           ),
         ),
@@ -49,7 +51,7 @@ class MainScreen extends StatelessWidget {
           )
         ],
       ),
-      drawer: isLargeScreen ? null : _drawer(),
+      drawer: isLargeScreen ? null : _drawer(context),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -86,7 +88,7 @@ class MainScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              "Matikan perangkat yang tidak digunakan untuk menghemat energi. Ini langkah kecil untuk Anda, tapi besar untuk bumi!",
+              "Turn off unused devices to save energy. It's a small step for you, but a big one for the planet!",
               style: TextStyle(fontSize: 16, color: Colors.white),
             ),
           ],
@@ -112,7 +114,7 @@ class MainScreen extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              "“Ancaman terbesar bagi planet ini adalah keyakinan bahwa orang lain yang akan menyelamatkannya.” – Robert Swan",
+              "“The greatest threat to our planet is the belief that someone else will save it.” – Robert Swan",
               style: TextStyle(
                   fontSize: 16, color: Colors.white, fontStyle: FontStyle.italic),
             ),
@@ -139,7 +141,7 @@ class MainScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             const Text(
-              "Bergabunglah dalam diskusi! Bagikan pemikiran dan ide ramah lingkungan Anda dengan komunitas.",
+              "Join the discussion! Share your eco-friendly thoughts and ideas with the community.",
               style: TextStyle(fontSize: 16, color: Colors.white),
             ),
             const SizedBox(height: 10),
@@ -153,7 +155,7 @@ class MainScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const CommunityScreen()),
                 );
               },
-              child: const Text("Kunjungi Forum", style: TextStyle(color: Colors.white)),
+              child: const Text("Visit Forum", style: TextStyle(color: Colors.white)),
             ),
           ],
         ),
@@ -193,11 +195,12 @@ class MainScreen extends StatelessWidget {
     );
   }
 
-  Widget _drawer() => Drawer(
+  Widget _drawer(BuildContext context) => Drawer(
     child: ListView(
       children: _menuItems
           .map((item) => ListTile(
         onTap: () {
+          _onMenuItemTap(context, item);
           _scaffoldKey.currentState?.openEndDrawer();
         },
         title: Text(
@@ -209,13 +212,13 @@ class MainScreen extends StatelessWidget {
     ),
   );
 
-  Widget _navBarItems() => Row(
+  Widget _navBarItems(BuildContext context) => Row(
     mainAxisAlignment: MainAxisAlignment.end,
     crossAxisAlignment: CrossAxisAlignment.center,
     children: _menuItems
         .map(
           (item) => InkWell(
-        onTap: () {},
+        onTap: () => _onMenuItemTap(context, item),
         child: Padding(
           padding: const EdgeInsets.symmetric(
               vertical: 24.0, horizontal: 16),
@@ -228,12 +231,38 @@ class MainScreen extends StatelessWidget {
     )
         .toList(),
   );
+
+  void _onMenuItemTap(BuildContext context, String item) {
+    switch (item) {
+      case 'About':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const AboutScreen()),
+        );
+        break;
+      case 'Contact':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ContactScreen()),
+        );
+        break;
+      case 'Settings':
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+        );
+        break;
+      case 'Logout':
+      // Handle logout logic
+        break;
+    }
+  }
 }
 
-//drawer
+// Drawer Menu Items
 final List<String> _menuItems = <String>[
-  'Tentang',
-  'Kontak',
-  'Pengaturan',
-  'Keluar',
+  'About',
+  'Contact',
+  'Settings',
+  'Logout',
 ];
