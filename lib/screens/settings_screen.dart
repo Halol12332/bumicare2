@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'account_setting.dart';
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -29,7 +31,10 @@ class SettingsScreen extends StatelessWidget {
               "Change your account information",
               Icons.person,
                   () {
-                // Handle account option
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChangeAccountInfoScreen()),
+                );
               },
             ),
             const Divider(thickness: 1, color: Colors.grey),
