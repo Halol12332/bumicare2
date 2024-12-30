@@ -166,6 +166,18 @@ class _ChangeAccountInfoScreenState extends State<ChangeAccountInfoScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your birth date';
                   }
+                  final birthDateRegex = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+                  if (!birthDateRegex.hasMatch(value)) {
+                    return 'Enter a valid date in the format YYYY-MM-DD';
+                  }
+                  try {
+                    final birthDate = DateTime.parse(value);
+                    if (birthDate.isAfter(DateTime.now())) {
+                      return 'Birth date cannot be in the future';
+                    }
+                  } catch (e) {
+                    return 'Enter a valid date';
+                  }
                   return null;
                 },
               ),
@@ -182,6 +194,10 @@ class _ChangeAccountInfoScreenState extends State<ChangeAccountInfoScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your phone number';
                   }
+                  final phoneRegex = RegExp(r'^\d{10,15}$');
+                  if (!phoneRegex.hasMatch(value)) {
+                    return 'Enter a valid phone number (10-15 digits)';
+                  }
                   return null;
                 },
               ),
@@ -196,6 +212,13 @@ class _ChangeAccountInfoScreenState extends State<ChangeAccountInfoScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your nickname';
+                  }
+                  if (value.length < 3 || value.length > 20) {
+                    return 'Nickname should be 3-20 characters long';
+                  }
+                  final nicknameRegex = RegExp(r'^[a-zA-Z0-9]+$');
+                  if (!nicknameRegex.hasMatch(value)) {
+                    return 'Nickname should contain only letters and numbers';
                   }
                   return null;
                 },
