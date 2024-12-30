@@ -1,4 +1,6 @@
 //constant_rewards.dart
+
+//this is for displaying the logos
 final Map<String, String> rewardLogos = {
   'TNG eWallet Voucher RM1': '../assets/rewards_logo/tng_logo.png',
   'GrabFood Discount RM5': '../assets/rewards_logo/grabfood_logo.png',
@@ -7,6 +9,7 @@ final Map<String, String> rewardLogos = {
   'Starbucks Free Small Drink': '../assets/rewards_logo/starbucks_logo.png',
 };
 
+//this is for rewards_screen.dart
 final List<Map<String, dynamic>> rewards = [
   {'level': 1, 'reward': 'TNG eWallet Voucher RM1'},
   {'level': 5, 'reward': 'GrabFood Discount RM5'},

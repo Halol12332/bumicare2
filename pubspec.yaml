@@ -38,6 +38,7 @@ dependencies:
   cloud_firestore: ^5.6.0 # For Firestore database
   firebase_storage: ^12.3.7 # For file storage
   google_sign_in: ^6.0.0
+  fl_chart: ^0.70.0
 
 
 
@@ -100,6 +101,11 @@ assets:
   - assets/avatar_leaderboards/avatar8.png
   - assets/avatar_leaderboards/avatar9.png
   - assets/avatar_leaderboards/avatar10.png
+  - assets/settings_logo/account_icon.png
+  - assets/settings_logo/notifications_icon.jpg
+  - assets/settings_logo/privacy_icon.jpg
+  - assets/settings_logo/refer_icon.jpg
+  - assets/settings_logo/social_icon.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

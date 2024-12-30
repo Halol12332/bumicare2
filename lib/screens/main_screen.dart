@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:bumicare2/profile_icon.dart';
 import 'package:bumicare2/screens/rewards_screen.dart';
+import '../auth_service.dart';
 import 'about_screen.dart';
 import 'contact_screen.dart';
+import 'inventory_screen.dart';
 import 'settings_screen.dart';
 import 'community_screen.dart';
 import 'eco_track_screen.dart';
@@ -12,6 +14,7 @@ class MainScreen extends StatelessWidget {
   MainScreen({super.key});
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -37,20 +40,30 @@ class MainScreen extends StatelessWidget {
             children: [
               const Text(
                 "BumiCare",
-                style: TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
               if (isLargeScreen) Expanded(child: _navBarItems(context))
             ],
           ),
         ),
         actions: [
+          // Inventory Button
+          IconButton(
+            icon: const Icon(Icons.inventory, color: Colors.white),  // You can replace this with any icon you prefer
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => InventoryScreen()),
+              );
+            },
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: CircleAvatar(child: ProfileIcon()),
           )
         ],
       ),
+
       drawer: isLargeScreen ? null : _drawer(context),
       body: SingleChildScrollView(
         child: Padding(
@@ -167,7 +180,7 @@ class MainScreen extends StatelessWidget {
     return Column(
       children: [
         _buildButton(context, "Eco-Challenges", Colors.black, EcoTrackScreen()),
-        _buildButton(context, "Leaderboards", Colors.green[900]!, const LeaderboardsScreen()),
+        _buildButton(context, "Leaderboards", Colors.green[900]!, LeaderboardScreen()),
         _buildButton(context, "Rewards", Colors.green, RewardsScreen()),
       ],
     );
@@ -232,7 +245,7 @@ class MainScreen extends StatelessWidget {
         .toList(),
   );
 
-  void _onMenuItemTap(BuildContext context, String item) {
+  Future<void> _onMenuItemTap(BuildContext context, String item) async {
     switch (item) {
       case 'About':
         Navigator.push(
@@ -253,11 +266,37 @@ class MainScreen extends StatelessWidget {
         );
         break;
       case 'Logout':
-      // Handle logout logic
+      // Confirm logout
+        final confirm = await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Log Out'),
+              content: const Text('Are you sure you want to log out?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text('Log Out'),
+                ),
+              ],
+            );
+          },
+        );
+
+        if (confirm == true) {
+          await _authService.signOut(); // Firebase and Google logout
+          await logout(context); // Clear preferences and navigate to login
+        }
         break;
     }
   }
 }
+
+
 
 // Drawer Menu Items
 final List<String> _menuItems = <String>[

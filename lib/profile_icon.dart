@@ -1,6 +1,5 @@
 //profile_icon.dart
 import 'package:flutter/material.dart';
-import 'screens/settings_screen.dart';
 import 'screens/profile_screen.dart'; // Import the profile screen
 import 'screens/login_screen.dart'; // Import the login screen
 

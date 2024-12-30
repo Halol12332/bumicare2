@@ -1,157 +1,145 @@
-//this is leaderboards_screen.dart
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class LeaderboardsScreen extends StatelessWidget {
-  const LeaderboardsScreen({super.key});
+class LeaderboardScreen extends StatefulWidget {
+  @override
+  _LeaderboardScreenState createState() => _LeaderboardScreenState();
+}
+
+class _LeaderboardScreenState extends State<LeaderboardScreen> {
+  int selectedTab = 0;
 
   @override
   Widget build(BuildContext context) {
-    // Simulasi data pemain
-    final random = Random();
-    final allPlayers = List.generate(
-      200,
-          (index) => Player(
-        'Player ${index + 1}',
-        random.nextInt(120) + 1, // Level antara 1 hingga 120
-        '../assets/avatar.png',
-      ),
-    );
-
-    // Tambahkan data pengguna
-    final currentUser = Player('You', 4, '../assets/avatar_user.png');
-    allPlayers.add(currentUser);
-
-    // Hitung peringkat pengguna
-    final calculator = UserRankCalculator(allPlayers, currentUser);
-    final userRank = calculator.calculateRank();
-
-    // Top 10 pemain
-    final topPlayers = allPlayers.sublist(0, 10);
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Leaderboard"),
+        title: Text('Leaderboard'),
+        centerTitle: true,
+        backgroundColor: Colors.green,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const Text(
-              "Top 10 Players",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+      body: Column(
+        children: [
+          // Tab Buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildTabButton('Level', 0),
+              _buildTabButton('CO2 Saved', 1),
+            ],
+          ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance.collection('users').snapshots(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                // Parse Firestore data
+                final users = snapshot.data!.docs.map((doc) {
+                  return {
+                    'nickname': doc['nickname'],
+                    'avatar': doc['avatar'],
+                    'level': doc['level'],
+                    'CO2saved': doc['CO2saved'],
+                    'achievements': doc['achievements'],
+                  };
+                }).toList();
+
+                // Sort data based on the selected tab
+                final sortedUsers = List<Map<String, dynamic>>.from(users)
+                  ..sort((a, b) => selectedTab == 0
+                      ? b['level'].compareTo(a['level']) // Sort by level
+                      : b['CO2saved'].compareTo(a['CO2saved'])); // Sort by CO2 Saved
+
+                return ListView.builder(
+                  itemCount: sortedUsers.length,
+                  itemBuilder: (context, index) {
+                    final user = sortedUsers[index];
+                    return _buildLeaderboardTile(user, index);
+                  },
+                );
+              },
             ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: topPlayers.length,
-                itemBuilder: (context, index) {
-                  final player = topPlayers[index];
-                  return _buildLeaderboardTile(
-                      index + 1, player.profilePic, player.name, player.level);
-                },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabButton(String title, int tabIndex) {
+    final isSelected = selectedTab == tabIndex;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedTab = tabIndex;
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        margin: EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.green : Colors.grey[300],
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: isSelected ? Colors.white : Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLeaderboardTile(Map<String, dynamic> user, int index) {
+    final bool isEven = index % 2 == 0;
+    return Container(
+      decoration: BoxDecoration(
+        color: isEven ? Colors.green[50] : Colors.white,
+        border: Border(
+          bottom: BorderSide(color: Colors.grey.shade300),
+        ),
+      ),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundImage: NetworkImage(user['avatar']),
+          radius: 30,
+        ),
+        title: Text(
+          user['nickname'],
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: Colors.black87, // Darker text color for better contrast
+          ),
+        ),
+        subtitle: Text(
+          selectedTab == 0
+              ? 'Level: ${user['level']}'
+              : 'CO2 Saved: ${user['CO2saved']} kg',
+          style: TextStyle(
+            color: Colors.black54, // Medium-dark color for subtitles
+          ),
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.emoji_events,
+              color: Colors.orange.shade700, // Darker orange for contrast
+            ),
+            Text(
+              ' ${user['achievements']}',
+              style: TextStyle(
+                color: Colors.black87,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            const Divider(thickness: 2),
-            _buildCurrentUserTile(userRank, currentUser),
           ],
         ),
       ),
     );
-  }
-
-  Widget _buildLeaderboardTile(int rank, String profilePic, String name, int level) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundImage: AssetImage(profilePic),
-          radius: 30,
-        ),
-        title: Text(
-          name,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text("Level: $level"),
-        trailing: CircleAvatar(
-          backgroundColor: _getRankColor(rank),
-          child: Text(
-            "$rank",
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCurrentUserTile(int rank, Player currentUser) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundImage: AssetImage(currentUser.profilePic),
-          radius: 30,
-        ),
-        title: Text(
-          currentUser.name,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text("Level: ${currentUser.level}"),
-        trailing: CircleAvatar(
-          backgroundColor: Colors.blueGrey,
-          child: Text(
-            "$rank",
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Color _getRankColor(int rank) {
-    switch (rank) {
-      case 1:
-        return Colors.amber;
-      case 2:
-        return Colors.grey;
-      case 3:
-        return Colors.brown;
-      default:
-        return Colors.blueGrey;
-    }
-  }
-}
-
-class Player {
-  final String name;
-  final int level;
-  final String profilePic;
-
-  Player(this.name, this.level, this.profilePic);
-}
-
-class UserRankCalculator {
-  final List<Player> allPlayers;
-  final Player currentUser;
-
-  UserRankCalculator(this.allPlayers, this.currentUser);
-
-  int calculateRank() {
-    // Urutkan pemain berdasarkan level (descending)
-    allPlayers.sort((a, b) => b.level.compareTo(a.level));
-
-    // Cari indeks pengguna saat ini
-    for (int i = 0; i < allPlayers.length; i++) {
-      if (allPlayers[i].name == currentUser.name) {
-        return i + 1; // Peringkat dimulai dari 1
-      }
-    }
-
-    // Jika pengguna tidak ditemukan
-    return -1;
   }
 }

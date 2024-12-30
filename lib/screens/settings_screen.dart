@@ -1,4 +1,3 @@
-//settings_screen.dart
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -7,118 +6,107 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: const Text(
+          "Settings",
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    "Settings",
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _buildSettingOption(
-                  context,
-                  "Account",
-                  "Change your account information",
-                  "../assets/settings_logo/account_icon.png",
-                      () {},
-                ),
-                const SizedBox(height: 20),
-                _buildSettingOption(
-                  context,
-                  "Privacy",
-                  "Change your password",
-                  "../assets/settings_logo/privacy_icon.jpg",
-                      () {},
-                ),
-                const SizedBox(height: 20),
-                _buildSettingOption(
-                  context,
-                  "Notifications",
-                  "Open or close the app notifications",
-                  "../assets/settings_logo/notifications_icon.jpg",
-                      () {},
-                ),
-                const SizedBox(height: 20),
-                _buildSettingOption(
-                  context,
-                  "Add Social Account",
-                  "Add Facebook, Twitter etc.",
-                  "../assets/settings_logo/social_icon.jpg",
-                      () {},
-                ),
-                const SizedBox(height: 20),
-                _buildSettingOption(
-                  context,
-                  "Refer to Friends",
-                  "Get RM50 for referring friends",
-                  "../assets/settings_logo/refer_icon.jpg",
-                      () {},
-                ),
-              ],
+        child: ListView(
+          padding: const EdgeInsets.all(16.0),
+          children: [
+            _buildInteractiveSetting(
+              context,
+              "Account",
+              "Change your account information",
+              Icons.person,
+                  () {
+                // Handle account option
+              },
             ),
-          ),
+            const Divider(thickness: 1, color: Colors.grey),
+            _buildInteractiveSetting(
+              context,
+              "Privacy",
+              "Change your password",
+              Icons.lock,
+                  () {
+                // Handle privacy option
+              },
+            ),
+            const Divider(thickness: 1, color: Colors.grey),
+            _buildInteractiveSetting(
+              context,
+              "Notifications",
+              "Manage notifications",
+              Icons.notifications,
+                  () {
+                // Handle notifications option
+              },
+            ),
+            const Divider(thickness: 1, color: Colors.grey),
+            _buildInteractiveSetting(
+              context,
+              "Social Accounts",
+              "Connect Facebook, Twitter, etc.",
+              Icons.share,
+                  () {
+                // Handle social accounts option
+              },
+            ),
+            const Divider(thickness: 1, color: Colors.grey),
+            _buildInteractiveSetting(
+              context,
+              "Refer to Friends",
+              "Get RM50 for referrals",
+              Icons.card_giftcard,
+                  () {
+                // Handle refer to friends option
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildSettingOption(
-      BuildContext context,
-      String title,
-      String subTitle,
-      String iconSrc,
-      VoidCallback onTap,
-      ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Image.asset(
-              iconSrc,
-              width: 24,
-              height: 24,
-              color: Colors.white,
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subTitle,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ],
+  Widget _buildInteractiveSetting(
+      BuildContext context, String title, String subtitle, IconData icon, VoidCallback onTap) {
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: Colors.black,
+        child: Icon(
+          icon,
+          color: Colors.white,
         ),
-        TextButton(
-          onPressed: onTap,
-          child: const Icon(
-            Icons.arrow_forward_ios_outlined,
-            size: 20,
-            color: Colors.white,
-          ),
-        ),
-      ],
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+      subtitle: Text(
+        subtitle,
+        style: const TextStyle(color: Colors.grey),
+      ),
+      trailing: const Icon(
+        Icons.arrow_forward_ios,
+        size: 18,
+        color: Colors.grey,
+      ),
+      onTap: onTap,
+      tileColor: Colors.grey[900],
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 }

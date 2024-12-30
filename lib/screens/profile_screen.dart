@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../auth_service.dart';
-import 'inventory_screen.dart';
 
 class UserProfileScreen extends StatelessWidget {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -29,9 +27,8 @@ class UserProfileScreen extends StatelessWidget {
           'phoneNumber': userData['phoneNumber'] ?? 'No Phone Number',
           'birthDate': userData['birthDate'] ?? 'No Birth Date',
           'avatar': userData['avatar'] ?? '',
-          'currentXP': userData['currentXP'] ?? 0,
-          'totalXP': userData['totalXP'] ?? 100,
-          'CO2saved': userData['CO2saved'] ?? 0,
+          'exp': userData['exp'] ?? 0, // Total accumulated XP
+          'CO2saved': userData['CO2saved'] ?? 0, // Total CO2 saved
         };
       } else {
         return Future.delayed(const Duration(seconds: 1), getUserDetails);
@@ -45,13 +42,11 @@ class UserProfileScreen extends StatelessWidget {
         'phoneNumber': 'No Phone Number',
         'birthDate': 'No Birth Date',
         'avatar': '',
-        'currentXP': 0,
-        'totalXP': 100,
+        'exp': 0,
         'CO2saved': 0,
       };
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +65,15 @@ class UserProfileScreen extends StatelessWidget {
           }
 
           final userDetails = snapshot.data!;
-          final profileImage = userDetails['profileImage'] ?? ''; // Default if no image
-          final currentXP = userDetails['currentXP'] ?? 0; // Current XP of the user
-          final totalXP = userDetails['totalXP'] ?? 100; // Total XP required for next level
+          final double co2Saved = userDetails['CO2saved']?.toDouble() ?? 0.0; // CO2 saved
+          final String email = userDetails['email'] ?? 'No Email';
+          final String phoneNumber = userDetails['phoneNumber'] ?? 'No Phone Number';
+          final String birthDate = userDetails['birthDate'] ?? 'No Birth Date';
+          final int exp = userDetails['exp'] ?? 0; // Current XP
+          final int level = userDetails['level'] ?? 1; // User Level
+
+          // Calculate progress for XP bar (max XP is 100)
+          double xpProgress = exp / 100.0;
 
           return SingleChildScrollView(
             child: Column(
@@ -82,7 +83,7 @@ class UserProfileScreen extends StatelessWidget {
                   alignment: Alignment.center,
                   children: [
                     Container(
-                      height: 300,
+                      height: 330,
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
                           colors: [Colors.lightGreen, Colors.green],
@@ -101,7 +102,6 @@ class UserProfileScreen extends StatelessWidget {
                               ? AssetImage(userDetails['avatar'])
                               : const AssetImage('assets/default_profile.png') as ImageProvider,
                         ),
-
                         const SizedBox(height: 16),
                         Text(
                           userDetails['nickname'],
@@ -113,33 +113,65 @@ class UserProfileScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Level ${userDetails['level']}',
+                          'Level $level',
                           style: const TextStyle(
                             fontSize: 18,
                             color: Colors.white70,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 8),
+                        // XP Progress Bar
                         Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Column(
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: LinearProgressIndicator(
-                                  value: currentXP / totalXP,
-                                  backgroundColor: Colors.white38,
-                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.greenAccent),
-                                  minHeight: 10,
+                              LinearProgressIndicator(
+                                value: xpProgress, // Progress of XP
+                                minHeight: 8,
+                                backgroundColor: Colors.white70,
+                                color: Colors.green,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'XP: $exp/100',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Menampilkan Total CO2 Saved
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Column(
+                            children: [
+                              const Text(
+                                'Total CO2 Saved',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                '$currentXP / $totalXP XP',
+                                '${co2Saved.toStringAsFixed(2)} kg',
                                 style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white70,
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
                                 ),
+                              ),
+                              const SizedBox(height: 8),
+                              // Icon untuk representasi CO2 yang diselamatkan
+                              Icon(
+                                Icons.eco,
+                                size: 40,
+                                color: Colors.white,
                               ),
                             ],
                           ),
@@ -149,8 +181,43 @@ class UserProfileScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
+                // User Details Section (Email, Phone, Birth Date)
                 Container(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'User Details',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      _buildUserDetailItem('Email', email),
+                      _buildUserDetailItem('Phone Number', phoneNumber),
+                      _buildUserDetailItem('Birth Date', birthDate),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Achievements Section
+                Container(
+                  padding: const EdgeInsets.all(16),
                   margin: const EdgeInsets.symmetric(horizontal: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -165,78 +232,28 @@ class UserProfileScreen extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      ListTile(
-                        leading: const Icon(Icons.email, color: Colors.green),
-                        title: Text(
-                          userDetails['email'] ?? 'No Email',
-                          style: const TextStyle(color: Colors.black87),
+                      const Text(
+                        'Achievements',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
-                      const Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.phone, color: Colors.green),
-                        title: Text(
-                          userDetails['phoneNumber'] ?? 'No Phone Number',
-                          style: const TextStyle(color: Colors.black87),
-                        ),
-                      ),
-                      const Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.cake, color: Colors.green),
-                        title: Text(
-                          userDetails['birthDate'] ?? 'No Birth Date',
-                          style: const TextStyle(color: Colors.black87),
-                        ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          _buildAchievementBadge('../assets/achievements_logo/first_login.jpg', 'First Login'),
+                          _buildAchievementBadge('../assets/achievements_logo/eco_saver.png', 'Eco Saver'),
+                          // Add more achievements here
+                        ],
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  child: OutlinedButton(
-                    onPressed: () => logout(context),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-                      side: const BorderSide(color: Colors.green),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(200),
-                      ),
-                    ),
-                    child: const Text(
-                      'Log Out',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(16),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => InventoryScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(200),
-                      ),
-                    ),
-                    child: const Text(
-                      'View Inventory',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
               ],
             ),
           );
@@ -244,4 +261,50 @@ class UserProfileScreen extends StatelessWidget {
       ),
     );
   }
+
+  // Helper function to build user detail item (Email, Phone Number, Birth Date)
+  Widget _buildUserDetailItem(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$label:',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 16,
+              color: Colors.black54,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper function to build achievement badges
+  Widget _buildAchievementBadge(String assetPath, String label) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 30,
+          backgroundImage: AssetImage(assetPath),
+          backgroundColor: Colors.grey[200],
+        ),
+        const SizedBox(height: 5),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      ],
+    );
+  }
 }
+

@@ -1,5 +1,8 @@
 //this is eco_track_screen.dart
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class EcoTrackScreen extends StatefulWidget {
   @override
@@ -9,12 +12,108 @@ class EcoTrackScreen extends StatefulWidget {
 class _EcoTrackScreenState extends State<EcoTrackScreen> {
   int totalXP = 0;
   double totalCO2Saved = 0.0;
+  int currentLevel = 1;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  void completeChallenge(double co2Saved) {
-    setState(() {
-      totalXP += 10; // Setiap tantangan memberikan 10 XP
-      totalCO2Saved += co2Saved;
-    });
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData(); // Fetch user data saat halaman dibuka
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      // Ambil email user dari SharedPreferences
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? email = prefs.getString('username'); // Pastikan email disimpan sebelumnya
+
+      if (email == null) {
+        throw "User email not found in SharedPreferences";
+      }
+
+      // Ambil data user dari Firestore berdasarkan email
+      DocumentSnapshot userSnapshot =
+      await _firestore.collection('users').doc(email).get();
+
+      // Validasi apakah data user ditemukan
+      if (!userSnapshot.exists) {
+        throw "User data not found in Firestore";
+      }
+
+      Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+
+      // Perbarui state dengan data user
+      setState(() {
+        totalXP = userData['exp'] ?? 0;
+        currentLevel = userData['level'] ?? 1;
+        totalCO2Saved = userData['CO2saved'] ?? 0.0;
+      });
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
+  Future<void> completeChallenge(double co2Saved) async {
+    try {
+      // Ambil email user dari SharedPreferences
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String? email = prefs.getString('username'); // Pastikan email disimpan sebelumnya
+
+      if (email == null) {
+        throw "User email not found in SharedPreferences";
+      }
+
+      // Ambil data user dari Firestore berdasarkan email
+      DocumentSnapshot userSnapshot = await _firestore.collection('users').doc(email).get();
+
+      // Validasi apakah data user ditemukan
+      if (!userSnapshot.exists) {
+        throw "User data not found in Firestore";
+      }
+
+      Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+
+      // Ambil XP, level, dan CO2 yang tersimpan saat ini
+      int currentXP = userData['exp'] ?? 0;
+      int currentLevel = userData['level'] ?? 1;
+      double currentCO2Saved = userData['CO2saved'] ?? 0.0;
+
+      // Tambahkan XP dan CO2 yang baru
+      int newXP = currentXP + 10; // XP dari challenge
+      double newCO2Saved = currentCO2Saved + co2Saved;
+
+      // Hitung level baru jika XP lebih dari 100
+      while (newXP >= 100) {
+        newXP -= 100;
+        currentLevel += 1;
+      }
+
+      // Update Firestore dengan data baru
+      await _firestore.collection('users').doc(email).update({
+        'exp': newXP,
+        'level': currentLevel,
+        'CO2saved': newCO2Saved,
+      });
+
+      // Update UI lokal
+      setState(() {
+        totalXP = newXP;
+        totalCO2Saved = newCO2Saved;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Challenge completed! CO2 saved: ${co2Saved.toStringAsFixed(2)} kg"),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
   }
 
   @override
@@ -27,9 +126,13 @@ class _EcoTrackScreenState extends State<EcoTrackScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  'Level: $currentLevel',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 Text(
                   'Total XP: $totalXP',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -59,7 +162,7 @@ class _EcoTrackScreenState extends State<EcoTrackScreen> {
                 ),
                 ExpandableWasteSegregationChallenge(
                   onComplete: (double co2Saved) => completeChallenge(co2Saved),
-                )
+                ),
               ],
             ),
           ),

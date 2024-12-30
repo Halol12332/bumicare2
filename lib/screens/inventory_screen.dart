@@ -1,7 +1,6 @@
-//this is inventory_screen.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../constant_rewards.dart';
 
 class InventoryScreen extends StatefulWidget {
@@ -9,177 +8,173 @@ class InventoryScreen extends StatefulWidget {
   _InventoryScreenState createState() => _InventoryScreenState();
 }
 
-class _InventoryScreenState extends State<InventoryScreen>
-    with TickerProviderStateMixin {
-  List<dynamic> claimedRewards = [];
+class _InventoryScreenState extends State<InventoryScreen> {
+  List<dynamic> inventory = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _loadClaimedRewards();
+    _loadInventory();
   }
 
-  Future<void> _loadClaimedRewards() async {
-    final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username') ?? '';
-    final claimedRewardsJson = prefs.getString('claimedRewards_$username') ?? '[]';
+  // Load user inventory from Firestore
+  Future<void> _loadInventory() async {
+    try {
+      final User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) throw Exception('No user is logged in.');
 
-    print('Claimed rewards for $username: $claimedRewardsJson');
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.email)
+          .get();
 
-    setState(() {
-      claimedRewards = jsonDecode(claimedRewardsJson);
-    });
+      if (!userDoc.exists) throw Exception('User document does not exist.');
+
+      final userData = userDoc.data();
+      final List<dynamic> userInventory = userData?['inventory'] ?? [];
+
+      setState(() {
+        inventory = userInventory;
+        isLoading = false;
+      });
+    } catch (e) {
+      print("Error loading inventory: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error loading inventory: $e")),
+      );
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
+
+  // Use a reward and update Firestore
+  Future<void> _useReward(String rewardName) async {
+    try {
+      final User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) throw Exception('No user is logged in.');
+
+      final userDocRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.email);
+
+      final userDoc = await userDocRef.get();
+      if (!userDoc.exists) throw Exception('User document does not exist.');
+
+      List<dynamic> updatedInventory = List.from(userDoc.data()?['inventory'] ?? []);
+      updatedInventory.remove(rewardName);
+
+      List<dynamic> updatedUsedRewards = List.from(userDoc.data()?['usedRewards'] ?? []);
+      updatedUsedRewards.add(rewardName);
+
+      await userDocRef.update({
+        'inventory': updatedInventory,
+        'usedRewards': updatedUsedRewards,
+      });
+
+      setState(() {
+        inventory = updatedInventory;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Reward '$rewardName' used successfully!")),
+      );
+    } catch (e) {
+      print("Error using reward: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error using reward: $e")),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inventory'),
+        title: const Text('Your Inventory'),
         backgroundColor: Colors.green,
       ),
-      body: claimedRewards.isEmpty
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : inventory.isEmpty
           ? const Center(
         child: Text(
-          'No rewards claimed yet!',
+          'Your inventory is empty!',
           style: TextStyle(fontSize: 18),
         ),
       )
           : ListView.builder(
-        itemCount: claimedRewards.length,
+        itemCount: inventory.length,
         itemBuilder: (context, index) {
-          final reward = claimedRewards[index];
-          final rewardName = rewards
-              .firstWhere(
-                  (r) => r['level'] == reward['level'],
-              orElse: () => {'reward': 'Unknown Reward'})['reward'];
-          final logoPath =
-              rewardLogos[rewardName] ?? 'assets/default_logo.png';
-
-          final claimedDate = DateTime.parse(reward['timestamp']);
-          final expiryDate = claimedDate.add(const Duration(days: 7));
-          final isExpired = DateTime.now().isAfter(expiryDate);
-          final remainingTime = expiryDate.difference(DateTime.now());
+          final rewardName = inventory[index];
+          final rewardLogo = rewardLogos[rewardName] ?? '../assets/default_logo.png';
 
           return Card(
-            margin: const EdgeInsets.symmetric(
-                horizontal: 16, vertical: 8),
-            child: ListTile(
-              leading: Image.asset(
-                logoPath,
-                width: 40,
-                height: 40,
-              ),
-              title: Text(rewardName),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            elevation: 8,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
                 children: [
-                  Text('Claimed on: ${reward['timestamp']}'),
-                  Text(
-                    'Expires on: ${expiryDate.toLocal().toString().split(' ')[0]}',
-                    style: TextStyle(
-                      color: isExpired ? Colors.red : Colors.green,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(
+                      rewardLogo,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  if (!isExpired)
-                    LinearProgressIndicator(
-                      value: remainingTime.inSeconds /
-                          Duration(days: 7).inSeconds,
-                      backgroundColor: Colors.grey[300],
-                      color: Colors.green,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black87,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        rewardName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 2,
+                              color: Colors.black45,
+                              offset: Offset(1, 1),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.left,
+                      ),
                     ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      _useReward(rewardName);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: const Text('Use'),
+                  ),
                 ],
               ),
-              trailing: isExpired
-                  ? const Text(
-                'Expired',
-                style: TextStyle(color: Colors.red),
-              )
-                  : reward['used'] == true
-                  ? const Text(
-                'Used',
-                style: TextStyle(color: Colors.blue),
-              )
-                  : ElevatedButton(
-                onPressed: () {
-                  _showConfirmationDialog(index);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                child: const Text('USE'),
-              ),
-
             ),
           );
         },
       ),
     );
-  }
-
-  void _showConfirmationDialog(int index) {
-    final reward = claimedRewards[index];
-    final rewardName = rewards
-        .firstWhere(
-            (r) => r['level'] == reward['level'],
-        orElse: () => {'reward': 'Unknown Reward'})['reward'];
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Use Reward'),
-          content: Text(
-              'Are you sure you want to use the reward: "$rewardName"? This action cannot be undone.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _useReward(index);
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text('Use'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _useReward(int index) async {
-    final reward = claimedRewards[index];
-    final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username') ?? '';
-    final claimedRewardsJson = prefs.getString('claimedRewards_$username') ?? '[]';
-    final List<dynamic> claimedRewardsList = jsonDecode(claimedRewardsJson);
-
-    // Tandai reward sebagai "used"
-    claimedRewardsList[index]['used'] = true;
-
-    await prefs.setString('claimedRewards_$username', jsonEncode(claimedRewards));
-
-    setState(() {
-      claimedRewards[index]['used'] = true; // Update lokal
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Used reward: ${reward['reward']}'),
-        behavior: SnackBarBehavior.floating,
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-
-
-  Future<void> _saveClaimedRewards() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('claimedRewards', jsonEncode(claimedRewards));
   }
 }
