@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:bumicare2/main/profile_icon.dart';
 import 'package:bumicare2/rewards/rewards_screen.dart';
 import '../accounts_handling/auth_service.dart';
-import '../lib/accounts_handling/inventory_screen.dart';
 import '../main/about_screen.dart';
 import '../main/contact_screen.dart';
 import '../screens/community_screen.dart';
 import '../eco_challenges/eco_challenges.dart';
+import '../accounts_handling/inventory_screen.dart';
 import '../eco_challenges/leaderboards_screen.dart';
 import 'settings_screen.dart';
 

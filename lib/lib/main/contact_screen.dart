@@ -1,48 +1,55 @@
 import 'package:flutter/material.dart';
 
-class AboutScreen extends StatelessWidget {
-  const AboutScreen({super.key});
+class ContactScreen extends StatelessWidget {
+  const ContactScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green[900],
-        title: const Text("About Us", style: TextStyle(color: Colors.white)),
+        title: const Text("Contact Us", style: TextStyle(color: Colors.white)),
       ),
-      backgroundColor: Colors.green[800], // Dark background for contrast
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "🌿 About BumiCare",
+              "📬 Get in Touch",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.green,
               ),
             ),
             const SizedBox(height: 16),
             const Text(
-              "BumiCare is your eco-friendly companion, designed to inspire and guide you on your journey to a greener lifestyle. "
-                  "We believe that small, consistent actions can make a big difference in creating a sustainable future.",
-              style: TextStyle(fontSize: 16, color: Colors.white),
+              "We’d love to hear from you! Whether you have a question, feedback, or just want to share your eco-friendly ideas, "
+                  "feel free to reach out to us.",
+              style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
             const SizedBox(height: 16),
             const Text(
-              "Our Mission",
+              "Contact Details",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.green,
               ),
             ),
             const SizedBox(height: 8),
             const Text(
-              "To empower individuals and communities with tools, tips, and motivation to reduce their carbon footprint and protect our planet.",
-              style: TextStyle(fontSize: 16, color: Colors.white),
+              "Email: support@bumicare.com",
+              style: TextStyle(fontSize: 16, color: Colors.black87),
+            ),
+            const Text(
+              "Phone: +123 456 789",
+              style: TextStyle(fontSize: 16, color: Colors.black87),
+            ),
+            const Text(
+              "Address: 123 Eco Street, Green City, Earth",
+              style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
             const Spacer(),
             Center(

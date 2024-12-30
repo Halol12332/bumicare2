@@ -10,7 +10,6 @@ class AboutScreen extends StatelessWidget {
         backgroundColor: Colors.green[900],
         title: const Text("About Us", style: TextStyle(color: Colors.white)),
       ),
-      backgroundColor: Colors.green[800], // Dark background for contrast
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -21,14 +20,14 @@ class AboutScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.green,
               ),
             ),
             const SizedBox(height: 16),
             const Text(
               "BumiCare is your eco-friendly companion, designed to inspire and guide you on your journey to a greener lifestyle. "
                   "We believe that small, consistent actions can make a big difference in creating a sustainable future.",
-              style: TextStyle(fontSize: 16, color: Colors.white),
+              style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -36,13 +35,13 @@ class AboutScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Colors.green,
               ),
             ),
             const SizedBox(height: 8),
             const Text(
               "To empower individuals and communities with tools, tips, and motivation to reduce their carbon footprint and protect our planet.",
-              style: TextStyle(fontSize: 16, color: Colors.white),
+              style: TextStyle(fontSize: 16, color: Colors.black87),
             ),
             const Spacer(),
             Center(

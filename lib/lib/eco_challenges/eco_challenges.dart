@@ -172,6 +172,7 @@ class _EcoTrackScreenState extends State<EcoTrackScreen> {
   }
 }
 
+
 class ExpandableReusableChallenge extends StatefulWidget {
   final Function(double) onComplete;
 
@@ -218,7 +219,7 @@ class _ExpandableReusableChallengeState extends State<ExpandableReusableChalleng
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "How many reusable items did you use today?",
+                    "Berapa banyak barang reusable yang Anda gunakan hari ini?",
                     style: TextStyle(fontSize: 16),
                   ),
                   SizedBox(height: 10),
@@ -226,7 +227,7 @@ class _ExpandableReusableChallengeState extends State<ExpandableReusableChalleng
                     children: [
                       Expanded(
                         child: TextFormField(
-                          decoration: InputDecoration(labelText: "Water Bottles"),
+                          decoration: InputDecoration(labelText: "Botol Minum"),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
@@ -238,7 +239,7 @@ class _ExpandableReusableChallengeState extends State<ExpandableReusableChalleng
                       SizedBox(width: 10),
                       Expanded(
                         child: TextFormField(
-                          decoration: InputDecoration(labelText: "Shopping Bags"),
+                          decoration: InputDecoration(labelText: "Tas Belanja"),
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
@@ -251,7 +252,7 @@ class _ExpandableReusableChallengeState extends State<ExpandableReusableChalleng
                   ),
                   SizedBox(height: 10),
                   TextFormField(
-                    decoration: InputDecoration(labelText: "Food Containers"),
+                    decoration: InputDecoration(labelText: "Wadah Makanan"),
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
@@ -265,7 +266,7 @@ class _ExpandableReusableChallengeState extends State<ExpandableReusableChalleng
                       double co2Saved = calculateCO2Saved();
                       widget.onComplete(co2Saved);
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text("CO2 saved: ${co2Saved.toStringAsFixed(2)} kg")),
+                        SnackBar(content: Text("CO2 yang dihemat: ${co2Saved.toStringAsFixed(2)} kg")),
                       );
                     },
                     child: Text("Complete Challenge"),
@@ -291,20 +292,20 @@ class ExpandableEnergySaverChallenge extends StatefulWidget {
 class _ExpandableEnergySaverChallengeState extends State<ExpandableEnergySaverChallenge> {
   bool isExpanded = false;
 
-  // List to store device data and duration
+  // List untuk menyimpan data perangkat dan durasi
   List<Map<String, dynamic>> devices = [
-    {"type": "Lamp", "duration": 0},
+    {"type": "Lampu", "duration": 0},
   ];
 
-  // CO2 emission factor for each device type
+  // Faktor emisi CO2 per jenis perangkat
   final Map<String, double> co2Factors = {
-    "Lamp": 0.02,
-    "Fan": 0.03,
+    "Lampu": 0.02,
+    "Kipas": 0.03,
     "AC": 0.2,
     "Laptop": 0.1,
   };
 
-  // Calculate the total CO2 saved
+  // Menghitung total CO2 yang dihemat
   double calculateCO2Saved() {
     double totalCO2 = 0.0;
     for (var device in devices) {
@@ -340,7 +341,7 @@ class _ExpandableEnergySaverChallengeState extends State<ExpandableEnergySaverCh
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Choose the devices you turned off and their duration:",
+                    "Pilih perangkat yang Anda matikan dan durasinya:",
                     style: TextStyle(fontSize: 16),
                   ),
                   SizedBox(height: 10),
@@ -357,7 +358,7 @@ class _ExpandableEnergySaverChallengeState extends State<ExpandableEnergySaverCh
                               value: entry.value["type"],
                               onChanged: (value) {
                                 setState(() {
-                                  devices[entry.key]["type"] = value ?? "Lamp";
+                                  devices[entry.key]["type"] = value ?? "Lampu";
                                 });
                               },
                               items: co2Factors.keys
@@ -369,7 +370,7 @@ class _ExpandableEnergySaverChallengeState extends State<ExpandableEnergySaverCh
                               )
                                   .toList(),
                               decoration: InputDecoration(
-                                labelText: "Device Type",
+                                labelText: "Jenis Perangkat",
                               ),
                             ),
                           ),
@@ -377,7 +378,7 @@ class _ExpandableEnergySaverChallengeState extends State<ExpandableEnergySaverCh
                           Expanded(
                             child: TextFormField(
                               decoration: InputDecoration(
-                                labelText: "Duration (hours)",
+                                labelText: "Durasi (jam)",
                               ),
                               keyboardType: TextInputType.number,
                               onChanged: (value) {
@@ -406,10 +407,10 @@ class _ExpandableEnergySaverChallengeState extends State<ExpandableEnergySaverCh
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        devices.add({"type": "Lamp", "duration": 0});
+                        devices.add({"type": "Lampu", "duration": 0});
                       });
                     },
-                    child: Text("Add Device"),
+                    child: Text("Tambah Perangkat"),
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
@@ -419,7 +420,7 @@ class _ExpandableEnergySaverChallengeState extends State<ExpandableEnergySaverCh
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            "CO2 saved: ${co2Saved.toStringAsFixed(2)} kg",
+                            "CO2 yang dihemat: ${co2Saved.toStringAsFixed(2)} kg",
                           ),
                         ),
                       );
@@ -435,6 +436,7 @@ class _ExpandableEnergySaverChallengeState extends State<ExpandableEnergySaverCh
   }
 }
 
+
 class ExpandableTravelChallenge extends StatefulWidget {
   final Function(double) onComplete;
 
@@ -447,20 +449,20 @@ class ExpandableTravelChallenge extends StatefulWidget {
 class _ExpandableTravelChallengeState extends State<ExpandableTravelChallenge> {
   bool isExpanded = false;
 
-  // List to store trip data (transport mode and distance)
+  // List untuk menyimpan data perjalanan (mode transportasi dan jarak)
   List<Map<String, dynamic>> trips = [
-    {"mode": "Walking", "distance": 0},
+    {"mode": "Berjalan Kaki", "distance": 0},
   ];
 
-  // CO2 emissions per kilometer for each transport mode
+  // Emisi CO2 per kilometer untuk setiap mode transportasi
   final Map<String, double> co2Factors = {
-    "Walking": 0.0,
-    "Bicycle": 0.0,
-    "Public Transport": 0.05,
-    "Private Vehicle": 0.12,
+    "Berjalan Kaki": 0.0,
+    "Sepeda": 0.0,
+    "Transportasi Umum": 0.05,
+    "Kendaraan Pribadi": 0.12,
   };
 
-  // Calculate total CO2 emissions
+  // Menghitung total CO2 yang dihasilkan
   double calculateCO2Emissions() {
     double totalCO2 = 0.0;
     for (var trip in trips) {
@@ -496,7 +498,7 @@ class _ExpandableTravelChallengeState extends State<ExpandableTravelChallenge> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Enter your transport mode and travel distance:",
+                    "Masukkan mode transportasi Anda dan jarak perjalanan:",
                     style: TextStyle(fontSize: 16),
                   ),
                   SizedBox(height: 10),
@@ -513,7 +515,7 @@ class _ExpandableTravelChallengeState extends State<ExpandableTravelChallenge> {
                               value: entry.value["mode"],
                               onChanged: (value) {
                                 setState(() {
-                                  trips[entry.key]["mode"] = value ?? "Walking";
+                                  trips[entry.key]["mode"] = value ?? "Berjalan Kaki";
                                 });
                               },
                               items: co2Factors.keys
@@ -525,7 +527,7 @@ class _ExpandableTravelChallengeState extends State<ExpandableTravelChallenge> {
                               )
                                   .toList(),
                               decoration: InputDecoration(
-                                labelText: "Transport Mode",
+                                labelText: "Mode Transportasi",
                               ),
                             ),
                           ),
@@ -533,7 +535,7 @@ class _ExpandableTravelChallengeState extends State<ExpandableTravelChallenge> {
                           Expanded(
                             child: TextFormField(
                               decoration: InputDecoration(
-                                labelText: "Distance (km)",
+                                labelText: "Jarak (km)",
                               ),
                               keyboardType: TextInputType.number,
                               onChanged: (value) {
@@ -562,10 +564,10 @@ class _ExpandableTravelChallengeState extends State<ExpandableTravelChallenge> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        trips.add({"mode": "Walking", "distance": 0});
+                        trips.add({"mode": "Berjalan Kaki", "distance": 0});
                       });
                     },
-                    child: Text("Add Trip"),
+                    child: Text("Tambah Perjalanan"),
                   ),
                   SizedBox(height: 20),
                   ElevatedButton(
@@ -575,7 +577,7 @@ class _ExpandableTravelChallengeState extends State<ExpandableTravelChallenge> {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            "CO2 emitted: ${co2Emissions.toStringAsFixed(2)} kg",
+                            "CO2 yang dihasilkan: ${co2Emissions.toStringAsFixed(2)} kg",
                           ),
                         ),
                       );
@@ -606,7 +608,7 @@ class _ExpandableMeatlessMealChallengeState extends State<ExpandableMeatlessMeal
   int meatMeals = 0;
 
   double calculateCO2Saved() {
-    // Calculate CO2 savings
+    // Menghitung penghematan CO2
     return (meatMeals * 2.5) - (plantBasedMeals * 0.3);
   }
 
@@ -637,12 +639,12 @@ class _ExpandableMeatlessMealChallengeState extends State<ExpandableMeatlessMeal
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "How many plant-based and meat-based meals did you eat today?",
+                    "Berapa banyak makanan nabati dan makanan berbasis daging yang Anda makan hari ini?",
                     style: TextStyle(fontSize: 16),
                   ),
                   SizedBox(height: 10),
                   TextFormField(
-                    decoration: InputDecoration(labelText: "Plant-Based Meals (servings)"),
+                    decoration: InputDecoration(labelText: "Makanan Nabati (porsi)"),
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
@@ -652,7 +654,7 @@ class _ExpandableMeatlessMealChallengeState extends State<ExpandableMeatlessMeal
                   ),
                   SizedBox(height: 10),
                   TextFormField(
-                    decoration: InputDecoration(labelText: "Meat Meals (servings)"),
+                    decoration: InputDecoration(labelText: "Makanan Daging (porsi)"),
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
@@ -665,8 +667,8 @@ class _ExpandableMeatlessMealChallengeState extends State<ExpandableMeatlessMeal
                     onPressed: () {
                       double co2Saved = calculateCO2Saved();
                       String message = co2Saved >= 0
-                          ? "CO2 saved: ${co2Saved.toStringAsFixed(2)} kg"
-                          : "More CO2 emitted: ${(-co2Saved).toStringAsFixed(2)} kg";
+                          ? "CO2 yang dihemat: ${co2Saved.toStringAsFixed(2)} kg"
+                          : "CO2 yang dihasilkan lebih banyak: ${(-co2Saved).toStringAsFixed(2)} kg";
 
                       widget.onComplete(co2Saved);
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -700,7 +702,7 @@ class _ExpandableWasteSegregationChallengeState extends State<ExpandableWasteSeg
   double metalWeight = 0.0;
 
   double calculateCO2Saved() {
-    // CO2 savings calculation based on material type
+    // Perhitungan penghematan CO2 berdasarkan jenis material
     return (plasticWeight * 1.5) + (paperWeight * 0.8) + (metalWeight * 2.0);
   }
 
@@ -731,12 +733,12 @@ class _ExpandableWasteSegregationChallengeState extends State<ExpandableWasteSeg
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "How much waste did you recycle today?",
+                    "Berapa banyak sampah yang Anda daur ulang hari ini?",
                     style: TextStyle(fontSize: 16),
                   ),
                   SizedBox(height: 10),
                   TextFormField(
-                    decoration: InputDecoration(labelText: "Plastic (kg)"),
+                    decoration: InputDecoration(labelText: "Plastik (kg)"),
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
@@ -746,7 +748,7 @@ class _ExpandableWasteSegregationChallengeState extends State<ExpandableWasteSeg
                   ),
                   SizedBox(height: 10),
                   TextFormField(
-                    decoration: InputDecoration(labelText: "Paper (kg)"),
+                    decoration: InputDecoration(labelText: "Kertas (kg)"),
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
@@ -756,7 +758,7 @@ class _ExpandableWasteSegregationChallengeState extends State<ExpandableWasteSeg
                   ),
                   SizedBox(height: 10),
                   TextFormField(
-                    decoration: InputDecoration(labelText: "Metal (kg)"),
+                    decoration: InputDecoration(labelText: "Logam (kg)"),
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setState(() {
@@ -771,7 +773,7 @@ class _ExpandableWasteSegregationChallengeState extends State<ExpandableWasteSeg
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                              "CO2 saved: ${co2Saved.toStringAsFixed(2)} kg"),
+                              "CO2 yang dihemat: ${co2Saved.toStringAsFixed(2)} kg"),
                         ),
                       );
                       widget.onComplete(co2Saved);
