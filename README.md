@@ -38,3 +38,38 @@ Ensure you have the following installed and configured on your local machine:
    ```bash
    git clone [https://github.com/Halol12332/bumicare2.git](https://github.com/Halol12332/bumicare2.git)
    cd bumicare2
+   ```
+Install dependencies:
+Fetch all required Dart packages by running:
+
+```Bash
+flutter pub get
+```
+Run the application:
+Make sure your emulator is running or your physical device is connected, then execute:
+
+```Bash
+flutter run
+```
+(Alternatively, you can open the project folder in Android Studio and click the green "Run" button at the top).
+
+📂 Folder Structure
+Plaintext
+bumicare2/
+├── android/           # Android-specific native code and configurations
+├── assets/            # Static assets like images, icons, and fonts
+├── lib/               # Main source code (Dart files)
+│   ├── main.dart      # Entry point of the Flutter application
+│   └── ...            # UI screens, widgets, and logic
+├── test/              # Unit and widget tests
+├── web/               # Web-specific native code (if applicable)
+├── pubspec.yaml       # Project metadata and Dart dependencies
+└── README.md          # Project documentation
+🤝 Contributing
+Contributions, issues, and feature requests are welcome!
+Feel free to check the issues page.
+
+📝 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+Built by Tan Jin Yan and Jaya Hakim Prajna for completing Mobile App Development Course (BAIT2073) at TARUMT
